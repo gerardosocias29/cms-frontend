@@ -4,38 +4,7 @@ import { Button } from 'primereact/button';
 import { Panel } from 'primereact/panel';
 
 const QueueDisplay = () => {
-  // Sample queue data - in practice this would come from props or an API
-  const queueData = {
-    nowServing: "S01",
-    queueList: [
-      { id: "P05", order: 1 },
-      { id: "R03", order: 2 },
-      { id: "SP05", order: null },
-      { id: "SP03", order: null },
-      { id: "R05", order: null },
-      { id: "R08", order: null },
-      { id: "R10", order: null },
-      { id: "R12", order: null },
-    ]
-  };
-
-  const displayData = {
-    locations: [
-      { id: "radiology", label: "Radiology / X-Ray", number: "SP01" },
-      { id: "clinic1", label: "Clinic RM1", number: "R05" },
-      { id: "clinic2", label: "Clinic RM2", number: "R06" },
-      { id: "clinic3", label: "Clinic RM3", number: "SP01" },
-      { id: "cashier1", label: "Cashier 01", number: "R01" },
-      { id: "cashier2", label: "Cashier 02", number: "P01" },
-    ]
-  };
-
-  const getColorClass = (id) => {
-    if (id.startsWith('P')) return 'text-red-600';
-    if (id.startsWith('SP')) return 'text-[#D87403]';
-    return 'text-blue-600';
-  };
-
+  
   return (
     <div className="flex flex-col bg-[#9ADAF1] min-h-screen">
       <div className='p-4 flex items-center justify-center border-b border-black'>
