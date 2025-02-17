@@ -2,3 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+.bordered-table {
+  border: 1px solid #ACA9A9;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bordered-table tr {
+  border-bottom: 1px solid #ACA9A9;
+}
+
+.bordered-table td {
+  padding: 16px;
+  text-align: center;
+  border-right: 1px solid #ACA9A9;
+}
+
+.bordered-table td:last-child {
+  border-right: none;
+}
