@@ -1,10 +1,7 @@
 import React from 'react';
-import { Card } from 'primereact/card';
-import { Button } from 'primereact/button';
-import { Panel } from 'primereact/panel';
 
 const QueueDisplay = () => {
-  
+
   return (
     <div className="flex flex-col bg-[#9ADAF1] min-h-screen">
       <div className='p-4 flex items-center justify-center border-b border-black'>

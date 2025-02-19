@@ -4,14 +4,17 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { AuthProvider } from "./contexts/AuthContext";
+import { PrimeReactProvider, PrimeReactContext } from 'primereact/api';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
+  <PrimeReactProvider value={{
+    ripple: true,
+  }}>
     <AuthProvider>
       <App />
     </AuthProvider>
-  </React.StrictMode>
+  </PrimeReactProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

@@ -3,7 +3,7 @@ import { useContext, useEffect } from "react";
 import AuthContext from "./AuthContext";
 
 const axiosInstance = axios.create({
-  baseURL: "https://your-api-url.com/api",
+  baseURL: "http://localhost:9876/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -11,13 +11,16 @@ const axiosInstance = axios.create({
 
 export const useAxios = () => {
   const { token } = useContext(AuthContext);
-
   useEffect(() => {
-    if (token) {
-      axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    } else {
-      delete axiosInstance.defaults.headers.common["Authorization"];
-    }
+    axiosInstance.interceptors.request.use(
+      (config) => {
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => console.log(error)
+    );
   }, [token]);
 
   return axiosInstance;
