@@ -1,15 +1,31 @@
 import { Avatar } from "primereact/avatar";
 import { Menu } from "primereact/menu";
-import { useRef } from "react";
+import { useContext, useRef } from "react";
+import { useAxios } from "../../contexts/AxiosContext";
+import AuthContext from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
-const Navbar = ( {profile} ) => {
+const Navbar = ( {profile, setLoadingState} ) => {
   const menuRef = useRef(null);
+  const axiosInstance = useAxios();
+  const { logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const menuItems = [
     { label: "Profile", icon: "pi pi-user", command: () => console.log("Profile Clicked") },
     { label: "Settings", icon: "pi pi-cog", command: () => console.log("Settings Clicked") },
     { separator: true },
-    { label: "Logout", icon: "pi pi-sign-out", command: () => console.log("Logout Clicked") },
+    { label: "Logout", icon: "pi pi-sign-out", command: () => {
+      setLoadingState(true);
+      axiosInstance.post('/logout').then((response) => {
+        setLoadingState(false)
+        logout();
+        navigate('/')
+      }).catch((error) => {
+        setLoadingState(false)
+        console.log(error);
+      })
+    }},
   ];
 
   return (

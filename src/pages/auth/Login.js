@@ -22,11 +22,13 @@ const Login = ({ setLoadingState }) => {
     axiosInstance
       .post('/login', loginDetails)
       .then((response) => {
-        setLoadingState(false)
         login(response.data.token)
+
         setTimeout(() => {
-          navigate("main?page=")
+          setLoadingState(false)
+          navigate("main?page=dashboard")
         }, 300)
+
       }).catch((error) => {
         console.log(error)
         setLoadingState(false)
@@ -53,7 +55,7 @@ const Login = ({ setLoadingState }) => {
               <InputText 
                 type="email"
                 name="email"
-                autoComplete="new-email"
+                autoComplete=""
                 required
                 className="w-full rounded-lg ring-0 px-3 py-2 border"
                 placeholder="Email address"
@@ -79,7 +81,7 @@ const Login = ({ setLoadingState }) => {
               <Password 
                 type="password"
                 name="password"
-                autoComplete="new-password"
+                autoComplete=""
                 required
                 className="w-full flex flex-col"
                 placeholder="Password"

@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useAxios } from "../../contexts/AxiosContext"
 import Layout from "../layout/Layout";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import NotFound from "../404/NotFound";
 import Dashboard from "../dashboard/Dashboard";
+import AuthContext from "../../contexts/AuthContext";
 
 const useQueryParams = () => {
   const { search } = useLocation();
@@ -11,11 +12,13 @@ const useQueryParams = () => {
 };
 
 const Main = ( {setLoadingState} ) => {
+  const navigate = useNavigate();
   const location = useLocation();
   const axiosInstance = useAxios();
   const [profile, setProfile] = useState();
   const [page, setPage] = useState("dashboard");
   const queryParams = useQueryParams();
+  const { logout } = useContext(AuthContext);
 
   const renderPage = (page) => {
     let p;
@@ -40,6 +43,8 @@ const Main = ( {setLoadingState} ) => {
       }).catch((error) => {
         console.log(error)
         setLoadingState(false)
+        logout();  
+        navigate('/')  
       });
   }, []);
 
@@ -51,7 +56,7 @@ const Main = ( {setLoadingState} ) => {
   }, [location.search]);
 
   return (
-    <Layout profile={profile}>
+    <Layout profile={profile} setLoadingState={setLoadingState}>
       {renderPage(page)}
     </Layout>
   )

@@ -7,19 +7,24 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (token) {
+      localStorage.clear();
       localStorage.setItem("token", token);
     } else {
       localStorage.removeItem("token");
+      localStorage.clear();
     }
   }, [token]);
 
   const login = (authToken) => {
+    localStorage.clear();
     setToken(authToken);
+    localStorage.setItem("token", authToken);
   };
 
   const logout = () => {
     setToken(null);
     localStorage.removeItem("token");
+    localStorage.clear();
   };
 
   return (
