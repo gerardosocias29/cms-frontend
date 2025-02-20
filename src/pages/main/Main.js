@@ -1,13 +1,34 @@
 import { useEffect, useRef, useState } from "react";
 import { useAxios } from "../../contexts/AxiosContext"
-import { Avatar } from "primereact/avatar";
-import { Menu } from "primereact/menu"; 
 import Layout from "../layout/Layout";
+import { useLocation } from "react-router-dom";
+import NotFound from "../404/NotFound";
+import Dashboard from "../dashboard/Dashboard";
+
+const useQueryParams = () => {
+  const { search } = useLocation();
+  return new URLSearchParams(search);
+};
 
 const Main = ( {setLoadingState} ) => {
+  const location = useLocation();
   const axiosInstance = useAxios();
   const [profile, setProfile] = useState();
-  const menuRef = useRef(null);
+  const [page, setPage] = useState("dashboard");
+  const queryParams = useQueryParams();
+
+  const renderPage = (page) => {
+    let p;
+    switch(page) {
+      case 'dashboard':
+        p = <Dashboard />
+      break;
+      default:
+        p = <NotFound />
+      break;
+    }
+    return p;
+  } 
 
   useEffect(() => {
     setLoadingState(true)
@@ -21,18 +42,17 @@ const Main = ( {setLoadingState} ) => {
         setLoadingState(false)
       });
   }, []);
-  
-  const menuItems = [
-    { label: "Profile", icon: "pi pi-user", command: () => console.log("Profile Clicked") },
-    { label: "Settings", icon: "pi pi-cog", command: () => console.log("Settings Clicked") },
-    { separator: true },
-    { label: "Logout", icon: "pi pi-sign-out", command: () => console.log("Logout Clicked") },
-  ];
+
+  useEffect(() => {
+    const pageParam = queryParams.get("page");
+    if (pageParam) {
+      setPage(pageParam);
+    }
+  }, [location.search]);
 
   return (
     <Layout profile={profile}>
-      <h2 className="text-xl font-bold">Main Content</h2>
-      <p>Welcome, {profile?.name || "User"}!</p>
+      {renderPage(page)}
     </Layout>
   )
 }
