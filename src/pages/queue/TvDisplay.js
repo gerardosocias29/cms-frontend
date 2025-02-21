@@ -1,4 +1,10 @@
-const TvDisplay = () => {
+import { useEffect } from "react";
+
+const TvDisplay = ({setLoadingState}) => {
+
+  useEffect(() => {
+    setLoadingState(false);
+  }, [])
 
   const renderCard = (title, sequence, color) => {
     return <div className="p-5 rounded-xl h-full bg-white border-[5px] border-[#0737F8] p-5 text-center">

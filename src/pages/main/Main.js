@@ -1,10 +1,11 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useAxios } from "../../contexts/AxiosContext"
 import Layout from "../layout/Layout";
 import { useLocation, useNavigate } from "react-router-dom";
 import NotFound from "../404/NotFound";
 import Dashboard from "../dashboard/Dashboard";
 import AuthContext from "../../contexts/AuthContext";
+import Queue from "../queue/Queue";
 
 const useQueryParams = () => {
   const { search } = useLocation();
@@ -25,6 +26,9 @@ const Main = ( {setLoadingState} ) => {
     switch(page) {
       case 'dashboard':
         p = <Dashboard />
+      break;
+      case 'queue':
+        p = <Queue />
       break;
       default:
         p = <NotFound />

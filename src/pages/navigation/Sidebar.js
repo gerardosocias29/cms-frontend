@@ -1,4 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
+import { FaBuilding } from "react-icons/fa6";
+import { FaCogs } from "react-icons/fa";
+import { RiStackFill } from "react-icons/ri";
+import { BsBuildingsFill } from "react-icons/bs";
 
 const Sidebar = ({ profile }) => {
   const location = useLocation();
@@ -21,17 +25,30 @@ const Sidebar = ({ profile }) => {
                 "dashboard"
               )}`}
             >
+              <FaBuilding />
               <span className="ms-3">Dashboard</span>
             </Link>
           </li>
           <li>
             <Link
-              to="/main?page=profile"
+              to="/main?page=queue"
               className={`flex items-center p-2 text-gray-900 rounded-lg dark:text-white ${getLinkClass(
-                "profile"
+                "queue"
               )}`}
             >
-              <span className="ms-3">Profile</span>
+              <RiStackFill />
+              <span className="ms-3">Queue</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/main?page=departments"
+              className={`flex items-center p-2 text-gray-900 rounded-lg dark:text-white ${getLinkClass(
+                "departments"
+              )}`}
+            >
+              <BsBuildingsFill />
+              <span className="ms-3">Departments</span>
             </Link>
           </li>
           <li>
@@ -41,6 +58,7 @@ const Sidebar = ({ profile }) => {
                 "settings"
               )}`}
             >
+              <FaCogs />
               <span className="ms-3">Settings</span>
             </Link>
           </li>
