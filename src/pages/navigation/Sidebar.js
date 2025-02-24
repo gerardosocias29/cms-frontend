@@ -1,15 +1,21 @@
 import { Link, useLocation } from "react-router-dom";
 import { FaBuilding } from "react-icons/fa6";
 import { FaCogs } from "react-icons/fa";
-import { RiStackFill } from "react-icons/ri";
+import { RiFirstAidKitFill, RiStackFill } from "react-icons/ri";
 import { BsBuildingsFill } from "react-icons/bs";
 
 const Sidebar = ({ profile }) => {
   const location = useLocation();
-  const getLinkClass = (page) =>
-    location.search.includes(`page=${page}`)
+
+  const getLinkClass = (page = "") => {
+    if(location.search.includes(`page=${page}`)){
+      console.log("page", page);
+    }
+    
+    return location.search.includes(`page=${page}`)
       ? "bg-gray-200 dark:bg-gray-700"
-      : "hover:bg-gray-100 dark:hover:bg-gray-700";
+      : "hover:bg-gray-100 dark:hover:bg-gray-700"
+  };
 
   return (
     <aside
@@ -27,6 +33,17 @@ const Sidebar = ({ profile }) => {
             >
               <FaBuilding />
               <span className="ms-3">Dashboard</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/main?page=triage"
+              className={`flex items-center p-2 text-gray-900 rounded-lg dark:text-white ${getLinkClass(
+                "triage"
+              )}`}
+            >
+              <RiFirstAidKitFill />
+              <span className="ms-3">Patient Triage</span>
             </Link>
           </li>
           <li>

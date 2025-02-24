@@ -4,7 +4,7 @@ import ReactPlayer from "react-player";
 const ServicePoint = ({ department, number, type = "regular", url = null }) => {
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden w-full max-h-[180px]">
-      <div className="bg-blue-600 text-white p-3 text-center font-bold">
+      <div className="bg-blue-600 text-xl text-white p-3 text-center font-bold">
         {department}
       </div>
       <div className="p-4 text-center">

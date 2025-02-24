@@ -6,6 +6,8 @@ import NotFound from "../404/NotFound";
 import Dashboard from "../dashboard/Dashboard";
 import AuthContext from "../../contexts/AuthContext";
 import Queue from "../queue/Queue";
+import Departments from "../departments/Departments";
+import Triage from "../triage/Triage";
 
 const useQueryParams = () => {
   const { search } = useLocation();
@@ -24,11 +26,17 @@ const Main = ( {setLoadingState} ) => {
   const renderPage = (page) => {
     let p;
     switch(page) {
-      case 'dashboard':
+      case 'dashboard': 
         p = <Dashboard />
       break;
       case 'queue':
         p = <Queue />
+      break;
+      case 'departments':
+        p = <Departments />
+      break;
+      case 'triage':
+        p = <Triage />
       break;
       default:
         p = <NotFound />
