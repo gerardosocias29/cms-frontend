@@ -141,7 +141,7 @@ export default function Triage() {
   });
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-6 max-w-7xl mx-auto bg-white">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
@@ -159,7 +159,7 @@ export default function Triage() {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg shadow">
+        <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200">
           <div className="flex items-center gap-3">
             <div className="bg-red-100 p-3 rounded-full">
               <FaExclamationTriangle className="text-red-600 text-xl" />
@@ -170,7 +170,7 @@ export default function Triage() {
             </div>
           </div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow">
+        <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200">
           <div className="flex items-center gap-3">
             <div className="bg-blue-100 p-3 rounded-full">
               <FaUserInjured className="text-blue-600 text-xl" />
@@ -181,7 +181,7 @@ export default function Triage() {
             </div>
           </div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow">
+        <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200">
           <div className="flex items-center gap-3">
             <div className="bg-yellow-100 p-3 rounded-full">
               <FaUserInjured className="text-yellow-600 text-xl" />
@@ -192,7 +192,7 @@ export default function Triage() {
             </div>
           </div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow">
+        <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200">
           <div className="flex items-center gap-3">
             <div className="bg-green-100 p-3 rounded-full">
               <FaClock className="text-green-600 text-xl" />
@@ -206,7 +206,7 @@ export default function Triage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow mb-6">
+      <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200 mb-6">
         <div className="flex gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -243,7 +243,7 @@ export default function Triage() {
       </div>
 
       {/* Patient List */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
@@ -370,7 +370,7 @@ export default function Triage() {
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Assign Doctor</h3>
                 <select
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-md border border-gray-200-sm py-2 px-3"
                   value={selectedPatient.assignedTo || ''}
                   onChange={(e) => handleAssignDoctor(selectedPatient.id, e.target.value)}
                 >
