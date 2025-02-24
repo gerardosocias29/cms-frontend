@@ -6,6 +6,8 @@ export default function Triage() {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
+    address: '',
+    birthday: null,
     symptoms: '',
     priority: 'medium',
     bloodPressure: '',
@@ -406,7 +408,7 @@ export default function Triage() {
               </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="grid grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Patient Name
@@ -423,14 +425,14 @@ export default function Triage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Symptoms
+                  Birthday
                 </label>
-                <textarea
-                  name="symptoms"
-                  value={formData.symptoms}
+                <input
+                  type="date"
+                  name="birthday"
+                  value={formData.birthday}
                   onChange={handleInputChange}
                   className="w-full border border-gray-300 rounded-md px-3 py-2"
-                  rows={3}
                   required
                 />
               </div>
@@ -452,7 +454,35 @@ export default function Triage() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className='lg:col-span-3'>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Address
+                </label>
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  required
+                />
+              </div>
+
+              <div className='lg:col-span-3'>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Symptoms
+                </label>
+                <textarea
+                  name="symptoms"
+                  value={formData.symptoms}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  rows={3}
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4 col-span-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Blood Pressure
@@ -500,7 +530,7 @@ export default function Triage() {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 mt-6">
+              <div className="flex justify-end gap-3 mt-6 col-span-3">
                 <button
                   type="button"
                   onClick={() => setShowNewPatientForm(false)}
@@ -510,8 +540,10 @@ export default function Triage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600" 
-                />
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md" 
+                >
+                  Submit
+                </button>
               </div>
             </form>
           </div>
