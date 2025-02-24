@@ -8,6 +8,7 @@ import AuthContext from "../../contexts/AuthContext";
 import Queue from "../queue/Queue";
 import Departments from "../departments/Departments";
 import Triage from "../triage/Triage";
+import Users from "../user/Users";
 
 const useQueryParams = () => {
   const { search } = useLocation();
@@ -37,6 +38,9 @@ const Main = ( {setLoadingState} ) => {
       break;
       case 'triage':
         p = <Triage />
+      break;
+      case 'users':
+        p = <Users />
       break;
       default:
         p = <NotFound />
