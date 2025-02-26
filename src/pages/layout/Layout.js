@@ -1,5 +1,6 @@
 import Navbar from "../navigation/Navbar";
 import Sidebar from "../navigation/Sidebar";
+import Footer from "./Footer";
 
 const Layout = ({ profile, setLoadingState, children }) => {
 
@@ -17,6 +18,7 @@ const Layout = ({ profile, setLoadingState, children }) => {
             {children}
           </div>
         </main>
+        <Footer />
       </div>
     </div>
   );
