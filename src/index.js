@@ -5,6 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { AuthProvider } from "./contexts/AuthContext";
 import { PrimeReactProvider } from 'primereact/api';
+import { ToastProvider } from './contexts/ToastContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -12,7 +13,9 @@ root.render(
     ripple: true,
   }}>
     <AuthProvider>
-      <App />
+      <ToastProvider>
+        <App />
+      </ToastProvider>
     </AuthProvider>
   </PrimeReactProvider>
 );

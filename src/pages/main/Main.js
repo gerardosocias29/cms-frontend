@@ -40,7 +40,7 @@ const Main = ( {setLoadingState} ) => {
         p = <Triage />
       break;
       case 'users':
-        p = <Users />
+        p = <Users axiosInstance={axiosInstance} />
       break;
       default:
         p = <NotFound />
