@@ -88,7 +88,7 @@ export default function Users({axiosInstance}) {
   }, [])
 
   return (
-    <div className="p-6 max-w-7xl mx-auto bg-white">
+    <div className="p-6 mx-auto bg-white">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
@@ -153,7 +153,7 @@ export default function Users({axiosInstance}) {
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200 mb-6">
+      <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200 mb-6 hidden">
         <div className="flex gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">

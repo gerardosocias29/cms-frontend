@@ -25,6 +25,14 @@ const Main = ( {setLoadingState} ) => {
   const { logout } = useContext(AuthContext);
 
   const renderPage = (page) => {
+    if(profile) {
+      const findPage = profile.role.modules.find((m) => m.page == page)
+      if(!findPage){
+        console.log(findPage);
+        return <NotFound />
+      }
+    }
+
     let p;
     switch(page) {
       case 'dashboard': 
@@ -36,7 +44,7 @@ const Main = ( {setLoadingState} ) => {
       case 'departments':
         p = <Departments />
       break;
-      case 'triage':
+      case 'patient-triage':
         p = <Triage />
       break;
       case 'users':
