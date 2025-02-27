@@ -8,6 +8,7 @@ import UserModal from '../../modals/UserModal';
 
 export default function Users({axiosInstance}) {
   const [showNewUserForm, setShowNewUserForm] = useState(false);
+  const [refreshTable, setRefreshTable] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
   const [filters, setFilters] = useState({
@@ -28,6 +29,11 @@ export default function Users({axiosInstance}) {
       : 'bg-red-100 text-red-800';
   };
 
+  const handleOnSuccess = () => {
+    setShowNewUserForm(false);
+    setRefreshTable(true);
+  }
+
   const [departments, setDepartments] = useState(null);
   const [cardTotals, setCardTotals] = useState({
     staff: 0,
@@ -35,6 +41,7 @@ export default function Users({axiosInstance}) {
     active: 0,
     inactive: 0
   });
+  
   const getData = async () => {
     try {
       const [departmentsResponse, cardTotalsResponse] = await Promise.all([
@@ -47,7 +54,6 @@ export default function Users({axiosInstance}) {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-
   }
 
   useEffect(() => {
@@ -170,15 +176,15 @@ export default function Users({axiosInstance}) {
 
       {/* Users List */}
       <LazyTable 
+        refreshTable={refreshTable}
+        setRefreshTable={setRefreshTable}
         checkbox={false}
         api={'/users'}
         columns={[
           {field: 'name', header: 'User', hasTemplate: true, template: (data, rowData) => {
-            return <div className="">
-              <div>
-                <div className="text-sm font-medium">{rowData.name}</div>
-                <div className="text-sm">{rowData.email}</div>
-              </div>
+            return <div className="flex flex-col items-start">
+              <div className="text-sm font-medium">{rowData.name}</div>
+              <div className="text-sm">{rowData.email}</div>
             </div>
           }},
           {field: 'role_id', header: 'Role', hasTemplate: true, template: (data, rowData) => {
@@ -205,6 +211,7 @@ export default function Users({axiosInstance}) {
       />
 
       <UserModal visible={showNewUserForm} 
+        onSuccess={handleOnSuccess}
         onHide={() => setShowNewUserForm(false)}
       />
     </div>
