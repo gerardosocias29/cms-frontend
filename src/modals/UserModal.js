@@ -11,7 +11,7 @@ export default function UserModal({
   visible = false,
   onHide,
   onSuccess,
-  data = {},
+  data = null,
   header = "Add New User"
 }) {
   const showToast = useToast();
@@ -24,7 +24,7 @@ export default function UserModal({
     password: false,
     password_confirmation: false,
     role_id: false,
-    deparment_id: false,
+    department_id: false,
     specialization_id: false,
   });
 
@@ -34,7 +34,7 @@ export default function UserModal({
     'password': '',
     'password_confirmation': '',
     'role_id': null,
-    'deparment_id': null,
+    'department_id': null,
     'specialization_id': null,
   }
   const [formData, setFormData] = useState(newData);
@@ -55,7 +55,8 @@ export default function UserModal({
     e.preventDefault();
 
     console.log(formData);
-    axiosInstance.post('/users', formData).then((response) => {
+    let api = data == null ? '/users' : '/users/'+formData.id;
+    axiosInstance.post(api, formData).then((response) => {
       showToast({
         severity: response.data.status ? "success" : "error",
         summary: response.data.status ? "Success" : "Failed",
@@ -67,19 +68,48 @@ export default function UserModal({
       showToast({
         severity: "error",
         summary: "Failed",
-        detail: "Failed to create user."
+        detail: "Failed to " + (data == null ? 'create' : 'update')+ " user."
       })
     })
   }
 
-
   const [departments, setDepartments] = useState();
   useEffect(() => {
     if(visible){
-      setFormData(newData);
       axiosInstance.get('/departments').then((response) => setDepartments(response.data));
     }
   }, [visible])
+
+  const findDepartmentId = (specializationId) => {
+    for (const department of departments) {
+      const specialization = department.specializations.find(
+        (s) => s.id === specializationId
+      );
+      if (specialization) {
+        return specialization.department_id;
+      }
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    if(departments){
+      if(data){
+        
+        setFormData((prev) => ({
+          ...prev,
+          ...data,
+          department_id: data?.department_specialization.department_id,
+          specialization_id: data?.department_specialization_id || null,
+          role_id: data?.role_id,
+        }));
+        console.log(formData);
+        
+      } else {
+        setFormData(newData);
+      }
+    }
+  }, [departments])
 
   useEffect(() => {
     setTouched();
@@ -137,11 +167,10 @@ export default function UserModal({
                 placeholder="Role Name"
                 name="role_id"
                 options={[
-                  {name: 'Staff', value: '3'},
-                  {name: 'Admin', value: '2'},
+                  {name: 'Staff', value: 3},
+                  {name: 'Admin', value: 2},
                 ]}
                 optionLabel="name"
-                optionValue="value"
                 value={formData.role_id}
                 onChange={handleOnChange}
                 onClick={() => {
@@ -161,7 +190,7 @@ export default function UserModal({
                 type="password"
                 name="password"
                 autoComplete="new-password"
-                required
+                required={data == null}
                 className="w-full flex flex-col"
                 placeholder="Password"
                 inputClassName={`w-full rounded-lg ring-0 px-3 py-2 border pr-10  ${!touched?.password && errors?.password ? "border-red-500" : ""}`}
@@ -188,11 +217,11 @@ export default function UserModal({
             </div>
             <div className="flex flex-col">
               <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Confirm Password</label>
-              <Password 
+              <Password
                 type="password"
                 name="password_confirmation"
                 autoComplete="new-password"
-                required
+                required={data == null}
                 className="w-full flex flex-col"
                 placeholder="Confirm Password"
                 inputClassName="w-full rounded-lg ring-0 px-3 py-2 border pr-10"
@@ -205,53 +234,58 @@ export default function UserModal({
                 onChange={handleOnChange}
               />
             </div>
-            <div className="flex flex-col">
-              <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Department</label>
-              <Dropdown 
-                className={`w-full rounded-lg ring-0 border ${!touched?.department_id && errors?.department_id ? "border-red-500" : ""}`}
-                placeholder="Department"
-                name="department_id"
-                options={departments}
-                optionLabel="name"
-                optionValue="id"
-                value={formData.department_id}
-                onChange={handleOnChange}
-                onClick={() => {
-                  setTouched((t) => ({
-                    ...t,
-                    department_id: true
-                  }))
-                }}
-                required
-              />
-              <p className="text-xs w-full text-red-500">{!touched?.department_id && errors?.department_id ? "This field is required." : ""}</p>
-            </div>
-            <div className="flex flex-col">
-              <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Specialization</label>
-              <Dropdown 
-                className={`w-full rounded-lg ring-0 border ${!touched?.specialization_id && errors?.specialization_id ? "border-red-500" : ""}`}
-                placeholder="Specialization"
-                name="specialization_id"
-                options={departments && departments.find((d) => d.id === formData.department_id)?.specializations}
-                optionLabel="name"
-                optionValue="id"
-                value={formData.specialization_id}
-                onChange={handleOnChange}
-                onClick={() => {
-                  setTouched((t) => ({
-                    ...t,
-                    specialization_id: true
-                  }))
-                }}
-                required
-              />
-              <p className="text-xs w-full text-red-500">{!touched?.specialization_id && errors?.specialization_id ? "This field is required." : ""}</p>
-            </div>
+            {formData.role_id == 2 ?
+              <>
+                <div className="flex flex-col">
+                  <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Department</label>
+                  <Dropdown 
+                    className={`w-full rounded-lg ring-0 border ${!touched?.department_id && errors?.department_id ? "border-red-500" : ""}`}
+                    placeholder="Department"
+                    name="department_id"
+                    options={departments}
+                    optionLabel="name"
+                    optionValue="id"
+                    value={formData.department_id}
+                    onChange={handleOnChange}
+                    onClick={() => {
+                      setTouched((t) => ({
+                        ...t,
+                        department_id: true
+                      }))
+                    }}
+                    required
+                  />
+                  <p className="text-xs w-full text-red-500">{!touched?.department_id && errors?.department_id ? "This field is required." : ""}</p>
+                </div>
+                <div className="flex flex-col">
+                  <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Specialization</label>
+                  <Dropdown 
+                    className={`w-full rounded-lg ring-0 border ${!touched?.specialization_id && errors?.specialization_id ? "border-red-500" : ""}`}
+                    placeholder="Specialization"
+                    name="specialization_id"
+                    options={departments && departments.find((d) => d.id === formData.department_id)?.specializations}
+                    optionLabel="name"
+                    optionValue="id"
+                    value={formData.specialization_id}
+                    onChange={handleOnChange}
+                    onClick={() => {
+                      setTouched((t) => ({
+                        ...t,
+                        specialization_id: true
+                      }))
+                    }}
+                    required
+                  />
+                  <p className="text-xs w-full text-red-500">{!touched?.specialization_id && errors?.specialization_id ? "This field is required." : ""}</p>
+                </div>
+              </> : null
+            }
+            
 
             <div className="lg:col-span-2 flex flex-col justify-end">
               <Button 
                 type="submit"
-                label="Create User"
+                label={`${data != null ? 'Update User' : 'Create User'}`}
                 className="px-3 py-2 w-full rounded-lg font-bold bg-[#030DD8] text-white"
               />
             </div>

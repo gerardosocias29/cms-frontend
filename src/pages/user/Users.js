@@ -1,10 +1,11 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { FaUserPlus, FaUserMd, FaUserCog, FaTimes, FaKey, FaHistory } from 'react-icons/fa';
 import LazyTable from '../../components/LazyTable';
-import { utc } from 'moment';
 import convertUTCToTimeZone from '../../utils/convertUTCToTimeZone';
 import UserModal from '../../modals/UserModal';
+import { Button } from 'primereact/button';
+import { LiaUserEditSolid } from 'react-icons/lia';
+import { GoTrash } from 'react-icons/go';
 
 export default function Users({axiosInstance}) {
   const [showNewUserForm, setShowNewUserForm] = useState(false);
@@ -32,6 +33,7 @@ export default function Users({axiosInstance}) {
   const handleOnSuccess = () => {
     setShowNewUserForm(false);
     setRefreshTable(true);
+    setSelectedUser(null);
   }
 
   const [departments, setDepartments] = useState(null);
@@ -54,6 +56,31 @@ export default function Users({axiosInstance}) {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
+  }
+
+  const handleEditUserClick = (data) => {
+    setSelectedUser(data);
+    setShowNewUserForm(true);
+  }
+
+  const customActions = (data) => {
+    return <div className='flex gap-4 justify-end'>
+      <Button
+        rounded
+        icon={<LiaUserEditSolid />}
+        className='text-blue-500 border border-blue-500 bg-blue-100'
+        tooltip='Edit User'
+        data-pr-position='top'
+        onClick={() => handleEditUserClick(data)}
+      />
+      <Button
+        rounded
+        icon={<GoTrash />}
+        className='text-red-500 border border-red-500 bg-red-100'
+        tooltip='Delete User'
+        data-pr-position='top'
+      />
+    </div>
   }
 
   useEffect(() => {
@@ -179,6 +206,7 @@ export default function Users({axiosInstance}) {
         refreshTable={refreshTable}
         setRefreshTable={setRefreshTable}
         checkbox={false}
+        selectionMode=""
         api={'/users'}
         columns={[
           {field: 'name', header: 'User', hasTemplate: true, template: (data, rowData) => {
@@ -203,16 +231,16 @@ export default function Users({axiosInstance}) {
           }},
         ]}
         actions={true}
-        action_types={
-          {
-            edit: true
-          }
-        }
+        customActions={customActions}
       />
 
       <UserModal visible={showNewUserForm} 
         onSuccess={handleOnSuccess}
-        onHide={() => setShowNewUserForm(false)}
+        data={selectedUser}
+        onHide={() => {
+          setShowNewUserForm(false)
+          setSelectedUser(null)
+        }}
       />
     </div>
   );
