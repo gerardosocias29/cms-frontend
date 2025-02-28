@@ -23,6 +23,7 @@ export default function PatientTriageModal({
     'bloodpressure',
     'heartrate',
     'temperature',
+    'assigned_user_id',
   ];
 
   const [touched, setTouched] = useState();
@@ -107,7 +108,7 @@ export default function PatientTriageModal({
               </div>
 
               <div className="flex flex-col lg:col-span-2">
-              <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Priority</label>
+                <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Priority</label>
                 <Dropdown 
                   className={`w-full rounded-lg ring-0 border ${!touched?.priority && errors?.priority ? "border-red-500" : ""}`}
                   placeholder="Priority"
@@ -131,7 +132,7 @@ export default function PatientTriageModal({
                 <p className="text-xs w-full text-red-500">{!touched?.priority && errors?.priority ? "This field is required." : ""}</p>
               </div>
 
-              <div className="flex flex-col lg:col-span-8">
+              <div className="flex flex-col lg:col-span-4">
                 <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Address</label>
                 <InputText
                   name="address"
@@ -149,6 +150,32 @@ export default function PatientTriageModal({
                   }}
                 />
                 <p className="text-xs w-full text-red-500">{!touched?.address && errors?.address ? "This field is required." : ""}</p>
+              </div>
+
+              <div className="flex flex-col lg:col-span-4">
+                <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Assign Doctor</label>
+                <Dropdown 
+                  className={`w-full rounded-lg ring-0 border ${!touched?.assigned_user_id && errors?.assigned_user_id ? "border-red-500" : ""}`}
+                  placeholder="Assign a doctor"
+                  name="assigned_user_id"
+                  options={[
+                    {name: 'Dr. Kwak Kwak', value: 1},
+                    {name: 'Dr. Maayo', value: 2},
+                    {name: 'Dr. Sa Masakiton', value: 3},
+                  ]}
+                  optionLabel="name"
+                  optionValue="value"
+                  value={formData.assigned_user_id}
+                  onChange={handleOnChange}
+                  onClick={() => {
+                    setTouched((t) => ({
+                      ...t,
+                      assigned_user_id: true
+                    }))
+                  }}
+                  required
+                />
+                <p className="text-xs w-full text-red-500">{!touched?.assigned_user_id && errors?.assigned_user_id ? "This field is required." : ""}</p>
               </div>
 
               <div className="flex flex-col lg:col-span-8">
