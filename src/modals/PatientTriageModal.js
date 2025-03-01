@@ -5,14 +5,18 @@ import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 import { useEffect, useState } from "react";
+import { useAxios } from "../contexts/AxiosContext";
+import { useToast } from "../contexts/ToastContext";
 
 export default function PatientTriageModal({
   visible = false,
   onHide,
-  onSuccess,
+  onSuccess = () => {},
   data = null,
   header = "Add New Patient"
 }) {
+  const axiosInstance = useAxios();
+  const showToast = useToast();
 
   const fields = [
     'name',
@@ -45,7 +49,24 @@ export default function PatientTriageModal({
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-
+    console.log(formData);
+    let api = data == null ? '/patients' : '/patients/'+formData.id;
+    axiosInstance.post(api, formData).then((response) => {
+      showToast({
+        severity: response.data.status ? "success" : "error",
+        summary: response.data.status ? "Success" : "Failed",
+        detail: response.data.message
+      })
+      onSuccess();
+    }).catch((error) => {
+      console.log(errors)
+      setErrors(error?.response?.data?.message)
+      showToast({
+        severity: "error",
+        summary: "Failed",
+        detail: "Failed to " + (data == null ? 'create' : 'update')+ " patient."
+      })
+    })
   }
 
   useEffect(() => {
@@ -56,6 +77,10 @@ export default function PatientTriageModal({
       setFormData(initialFormData);
     }
   }, [visible])
+
+  useEffect(() => {
+    setTouched();
+  }, [errors]);
 
   return (
     <>
