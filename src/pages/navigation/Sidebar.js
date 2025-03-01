@@ -4,6 +4,7 @@ import { FaCogs, FaUsers } from "react-icons/fa";
 import { RiFirstAidKitFill, RiStackFill } from "react-icons/ri";
 import { BsBuildingsFill } from "react-icons/bs";
 import { useEffect, useState } from "react";
+import { MdOutlineAddToQueue } from "react-icons/md";
 
 const Sidebar = ({ profile }) => {
   const location = useLocation();
@@ -57,6 +58,15 @@ const Sidebar = ({ profile }) => {
     >
       <div className="h-full px-3 py-4 overflow-y-auto">
         <ul className="space-y-2 font-medium">
+          <li>
+            <Link
+              to={`/queue-display-v2`}
+              className={`flex items-center p-2 text-gray-900 rounded-lg dark:text-white`}
+            >
+              <MdOutlineAddToQueue />
+              <span className="ms-3">Queue Display</span>
+            </Link>
+          </li>
           {
             modules && modules.map((module, i) => 
               <li key={i}>
