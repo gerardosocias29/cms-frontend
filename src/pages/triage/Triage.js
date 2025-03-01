@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import { FaUserInjured, FaClock, FaExclamationTriangle, FaTimes } from 'react-icons/fa';
 import PatientTriageModal from '../../modals/PatientTriageModal';
+import LazyTable from '../../components/LazyTable';
+import convertUTCToTimeZone from '../../utils/convertUTCToTimeZone';
 
 export default function Triage() {
   const [showNewPatientForm, setShowNewPatientForm] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
+
+  const [refreshTable, setRefreshTable] = useState(false);
+
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -16,38 +21,6 @@ export default function Triage() {
     temperature: ''
   });
 
-  const [patients, setPatients] = useState([
-    {
-      id: 'P05',
-      name: 'John Smith',
-      priority: 'urgent',
-      symptoms: 'Severe chest pain, shortness of breath',
-      vitals: {
-        bloodPressure: '140/90',
-        heartRate: 95,
-        temperature: 37.8
-      },
-      arrivalTime: '10:30 AM',
-      status: 'waiting',
-      estimatedWaitTime: 15
-    },
-    {
-      id: 'R03',
-      name: 'Mary Johnson',
-      priority: 'medium',
-      symptoms: 'Persistent headache, mild fever',
-      vitals: {
-        bloodPressure: '120/80',
-        heartRate: 82,
-        temperature: 38.2
-      },
-      arrivalTime: '10:45 AM',
-      status: 'in-progress',
-      assignedTo: 'Dr. Sarah Wilson',
-      estimatedWaitTime: 30
-    }
-  ]);
-
   const [filters, setFilters] = useState({
     priority: 'all',
     status: 'all'
@@ -55,12 +28,11 @@ export default function Triage() {
 
   const getPriorityColor = (priority) => {
     const colors = {
-      urgent: 'bg-red-100 text-red-800',
-      high: 'bg-orange-100 text-orange-800',
-      medium: 'bg-yellow-100 text-yellow-800',
-      low: 'bg-green-100 text-green-800'
+      P: 'bg-red-100 text-red-800',
+      SC: 'bg-orange-100 text-orange-800',
+      R: 'bg-blue-100 text-blue-800'
     };
-    return colors[priority] || colors.low;
+    return colors[priority] || colors['R'];
   };
 
   const getStatusColor = (status) => {
@@ -72,74 +44,13 @@ export default function Triage() {
     return colors[status] || colors['waiting'];
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const newPatient = {
-      id: `P${Math.floor(Math.random() * 1000)}`,
-      name: formData.name,
-      priority: formData.priority,
-      symptoms: formData.symptoms,
-      vitals: {
-        bloodPressure: formData.bloodPressure,
-        heartRate: parseInt(formData.heartRate),
-        temperature: parseFloat(formData.temperature)
-      },
-      arrivalTime: new Date().toLocaleTimeString(),
-      status: 'waiting',
-      estimatedWaitTime: calculateEstimatedWaitTime(formData.priority)
-    };
+  const customActions = () => {
+    return (
+      <>
     
-    setPatients(prev => [...prev, newPatient]);
-    setShowNewPatientForm(false);
-    setFormData({
-      name: '',
-      symptoms: '',
-      priority: 'medium',
-      bloodPressure: '',
-      heartRate: '',
-      temperature: ''
-    });
-  };
-
-  const calculateEstimatedWaitTime = (priority) => {
-    const baseTime = {
-      urgent: 10,
-      high: 20,
-      medium: 30,
-      low: 45
-    };
-    return baseTime[priority] + patients.length * 5;
-  };
-
-  const handleStatusChange = (patientId, newStatus) => {
-    setPatients(prev => prev.map(patient => 
-      patient.id === patientId 
-        ? { ...patient, status: newStatus }
-        : patient
-    ));
-  };
-
-  const handleAssignDoctor = (patientId, doctorName) => {
-    setPatients(prev => prev.map(patient =>
-      patient.id === patientId
-        ? { ...patient, assignedTo: doctorName, status: 'in-progress' }
-        : patient
-    ));
-  };
-
-  const filteredPatients = patients.filter(patient => {
-    if (filters.priority !== 'all' && patient.priority !== filters.priority) return false;
-    if (filters.status !== 'all' && patient.status !== filters.status) return false;
-    return true;
-  });
+      </>
+    );
+  }
 
   return (
     <div className="p-6 mx-auto bg-white">
@@ -167,7 +78,7 @@ export default function Triage() {
             </div>
             <div>
               <p className="text-gray-600">Urgent Cases</p>
-              <p className="text-2xl font-bold">{patients.filter(p => p.priority === 'urgent').length}</p>
+              <p className="text-2xl font-bold">{0}</p>
             </div>
           </div>
         </div>
@@ -178,7 +89,7 @@ export default function Triage() {
             </div>
             <div>
               <p className="text-gray-600">Waiting</p>
-              <p className="text-2xl font-bold">{patients.filter(p => p.status === 'waiting').length}</p>
+              <p className="text-2xl font-bold">{0}</p>
             </div>
           </div>
         </div>
@@ -189,7 +100,7 @@ export default function Triage() {
             </div>
             <div>
               <p className="text-gray-600">In Progress</p>
-              <p className="text-2xl font-bold">{patients.filter(p => p.status === 'in-progress').length}</p>
+              <p className="text-2xl font-bold">{0}</p>
             </div>
           </div>
         </div>
@@ -200,7 +111,7 @@ export default function Triage() {
             </div>
             <div>
               <p className="text-gray-600">Completed</p>
-              <p className="text-2xl font-bold">{patients.filter(p => p.status === 'completed').length}</p>
+              <p className="text-2xl font-bold">{0}</p>
             </div>
           </div>
         </div>
@@ -244,83 +155,36 @@ export default function Triage() {
       </div>
 
       {/* Patient List */}
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Patient ID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Priority
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Assigned To
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Wait Time
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredPatients.map((patient) => (
-                <tr key={patient.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {patient.id}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <div>{patient.name}</div>
-                    <div className="text-xs text-gray-500">{patient.arrivalTime}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getPriorityColor(patient.priority)}`}>
-                      {patient.priority.toUpperCase()}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(patient.status)}`}>
-                      {patient.status.toUpperCase()}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {patient.assignedTo || '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {patient.estimatedWaitTime} mins
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button
-                      onClick={() => setSelectedPatient(patient)}
-                      className="text-blue-600 hover:text-blue-900 mr-3"
-                    >
-                      View Details
-                    </button>
-                    <select
-                      value={patient.status}
-                      onChange={(e) => handleStatusChange(patient.id, e.target.value)}
-                      className="border border-gray-300 rounded-md px-2 py-1 text-sm"
-                    >
-                      <option value="waiting">Waiting</option>
-                      <option value="in-progress">In Progress</option>
-                      <option value="completed">Completed</option>
-                    </select>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <LazyTable 
+        refreshTable={refreshTable}
+        setRefreshTable={setRefreshTable}
+        checkbox={false}
+        selectionMode=""
+        api={'/patients'}
+        columns={[
+          {field: 'priority_number', header: 'Patient ID', hasTemplate: true, template: (data, rowData) => {
+            return <div className="flex flex-col items-start">
+              <div className="text-sm">{rowData.priority}{rowData.priority_number.toString().padStart(2, '0')}</div>
+            </div>
+          }},
+          {field: 'name', header: 'Name'},
+          {field: 'priority', header: 'Priority', hasTemplate: true, template: (data) => {
+            const priority = data == "P" ? "Urgent" : (data == "in-progress" ? "Senior/Pwd" : "Regular")
+            return <span className={`${getPriorityColor(data)} px-3 py-1 rounded-full uppercase font-medium text-xs`}>
+              {priority}
+            </span>
+          }},
+          {field: 'status', header: 'Status', hasTemplate: true, template: (data) => {
+            const status = data == "completed" ? "Completed" : (data == "SC" ? "In Progress" : "Waiting")
+            return <span className={`${getStatusColor(data)} px-3 py-1 rounded-full uppercase font-medium text-xs`}>
+              {status}
+            </span>
+          }},
+          {field: '', header: 'Assigned To'},
+        ]}
+        actions={true}
+        customActions={customActions}
+      />
 
       <PatientTriageModal visible={showNewPatientForm} onHide={() => setShowNewPatientForm(false)}/>
     </div>
