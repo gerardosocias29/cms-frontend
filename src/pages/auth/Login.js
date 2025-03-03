@@ -50,7 +50,7 @@ const Login = ({ setLoadingState }) => {
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form className="space-y-6" onSubmit={handleFormSubmit}>
           <div>
-            <label for="email" className="block text-sm/6 font-medium text-gray-900">Email address</label>
+            <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">Email address</label>
             <div className="mt-1">
               <InputText 
                 type="email"
@@ -72,7 +72,7 @@ const Login = ({ setLoadingState }) => {
 
           <div>
             <div className="flex items-center justify-between">
-              <label for="password" className="block text-sm/6 font-medium text-gray-900">Password</label>
+              <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">Password</label>
               <div className="text-sm">
                 <a href="#" className="font-semibold text-[#030DD8]">Forgot password?</a>
               </div>

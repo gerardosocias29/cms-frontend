@@ -36,7 +36,7 @@ const Main = ( {setLoadingState} ) => {
     let p;
     switch(page) {
       case 'dashboard': 
-        p = <Dashboard />
+        p = <Dashboard axiosInstance={axiosInstance}/>
       break;
       case 'queue':
         p = <Queue />
