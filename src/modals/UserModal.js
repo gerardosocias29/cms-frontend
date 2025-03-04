@@ -63,6 +63,7 @@ export default function UserModal({
         detail: response.data.message
       })
       onSuccess();
+      handleOnHide();
     }).catch((error) => {
       setErrors(error.response.data.message)
       showToast({
@@ -79,18 +80,6 @@ export default function UserModal({
       axiosInstance.get('/departments').then((response) => setDepartments(response.data));
     }
   }, [visible])
-
-  const findDepartmentId = (specializationId) => {
-    for (const department of departments) {
-      const specialization = department.specializations.find(
-        (s) => s.id === specializationId
-      );
-      if (specialization) {
-        return specialization.department_id;
-      }
-    }
-    return null;
-  };
 
   useEffect(() => {
     if(departments){
@@ -117,7 +106,7 @@ export default function UserModal({
 
   return(
     <>
-      <Dialog className="lg:w-1/2 w-[95%]" header={header} visible={visible} draggable={false} maximizable={false} onHide={handleOnHide}>
+      <Dialog className="lg:w-1/2 w-[95%]" header={formData.name ? 'Update User' : header} visible={visible} draggable={false} maximizable={false} onHide={handleOnHide}>
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col lg:col-span-2">

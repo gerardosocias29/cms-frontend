@@ -3,6 +3,9 @@ import { FaUserInjured, FaClock, FaExclamationTriangle, FaTimes } from 'react-ic
 import PatientTriageModal from '../../modals/PatientTriageModal';
 import LazyTable from '../../components/LazyTable';
 import convertUTCToTimeZone from '../../utils/convertUTCToTimeZone';
+import { LiaUserEditSolid } from 'react-icons/lia';
+import { GoTrash } from 'react-icons/go';
+import { Button } from 'primereact/button';
 
 export default function Triage() {
   const [showNewPatientForm, setShowNewPatientForm] = useState(false);
@@ -44,12 +47,29 @@ export default function Triage() {
     return colors[status] || colors['waiting'];
   };
 
-  const customActions = () => {
-    return (
-      <>
-    
-      </>
-    );
+  const handleEditPatient = (data) => {
+    setSelectedPatient(data);
+    setShowNewPatientForm(true);
+  }
+  
+  const customActions = (data) => {
+    return <div className='flex gap-4 justify-end'>
+      <Button
+        rounded
+        icon={<LiaUserEditSolid />}
+        className='text-blue-500 border border-blue-500 bg-blue-100'
+        tooltip='Edit Patient'
+        data-pr-position='top'
+        onClick={() => handleEditPatient(data)}
+      />
+      <Button
+        rounded
+        icon={<GoTrash />}
+        className='text-red-500 border border-red-500 bg-red-100'
+        tooltip='Delete User'
+        data-pr-position='top'
+      />
+    </div>
   }
 
   return (
@@ -167,7 +187,7 @@ export default function Triage() {
               <div className="text-sm">{rowData.priority}{rowData.priority_number.toString().padStart(2, '0')}</div>
             </div>
           }},
-          {field: 'name', header: 'Name'},
+          {field: 'name', header: 'Name', headerClassname: "text-xs"},
           {field: 'priority', header: 'Priority', hasTemplate: true, template: (data) => {
             const priority = data == "P" ? "Urgent" : (data == "in-progress" ? "Senior/Pwd" : "Regular")
             return <span className={`${getPriorityColor(data)} px-3 py-1 rounded-full uppercase font-medium text-xs`}>
@@ -180,13 +200,13 @@ export default function Triage() {
               {status}
             </span>
           }},
-          {field: '', header: 'Assigned To'},
+          {field: 'assigned_to.name', header: 'Assigned To'},
         ]}
         actions={true}
         customActions={customActions}
       />
 
-      <PatientTriageModal visible={showNewPatientForm} onHide={() => setShowNewPatientForm(false)}/>
+      <PatientTriageModal visible={showNewPatientForm} data={selectedPatient} onSuccess={() => {setRefreshTable(true)}} onHide={() => {setShowNewPatientForm(false); setSelectedPatient(null)}}/>
     </div>
   )
 }

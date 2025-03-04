@@ -19,6 +19,7 @@ export default function PatientTriageModal({
   const showToast = useToast();
 
   const fields = [
+    'id',
     'name',
     'birthday',
     'priority',
@@ -34,8 +35,10 @@ export default function PatientTriageModal({
   const [errors, setErrors] = useState();
 
   const [formData, setFormData] = useState();
+  const [staffs, setStaffs] = useState();
 
   const handleOnHide = () => {
+    setFormData();
     onHide();
   }
 
@@ -58,6 +61,7 @@ export default function PatientTriageModal({
         detail: response.data.message
       })
       onSuccess();
+      handleOnHide();
     }).catch((error) => {
       console.log(errors)
       setErrors(error?.response?.data?.message)
@@ -69,11 +73,27 @@ export default function PatientTriageModal({
     })
   }
 
-  useEffect(() => {
+  const getStaffUsers = async () => {
+    await axiosInstance.get('/users/staff').then((response) => {
+      setStaffs(response.data);
+    })
+  }
+
+  useEffect( () => {
     if(visible){
+      getStaffUsers();
+
       const initialTouchedState = Object.fromEntries(fields.map(field => [field, false]));
-      const initialFormData = Object.fromEntries(fields.map(field => [field, '']));
       setTouched(initialTouchedState);
+
+      const initialFormData = Object.fromEntries(fields.map(field => [field, data?.[field] || '']));
+
+      if (data) {
+        Object.keys(initialFormData).forEach((key) => {
+          initialFormData[key] = key === 'birthday' && data[key] ? new Date(data[key]) : data[key] ?? '';
+        });
+      }
+
       setFormData(initialFormData);
     }
   }, [visible])
@@ -84,7 +104,7 @@ export default function PatientTriageModal({
 
   return (
     <>
-      <Dialog className="lg:w-1/2 w-[95%]" header={header} visible={visible} draggable={false} maximizable={false} onHide={handleOnHide}>
+      <Dialog className="lg:w-1/2 w-[95%]" header={formData?.name ? 'Update Patient' : header} visible={visible} draggable={false} maximizable={false} onHide={handleOnHide}>
         {
           formData &&
           <form onSubmit={handleFormSubmit}>
@@ -181,16 +201,12 @@ export default function PatientTriageModal({
                 <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Assign Doctor</label>
                 <Dropdown 
                   className={`w-full rounded-lg ring-0 border ${!touched?.assigned_user_id && errors?.assigned_user_id ? "border-red-500" : ""}`}
-                  placeholder="Assign a doctor"
+                  placeholder={`Assign a doctor ${JSON.stringify(staffs.find((e) => e.id == formData?.assigned_user_id))}`}
                   name="assigned_user_id"
-                  options={[
-                    {name: 'Dr. Kwak Kwak', value: 1},
-                    {name: 'Dr. Maayo', value: 2},
-                    {name: 'Dr. Sa Masakiton', value: 3},
-                  ]}
+                  options={staffs}
                   optionLabel="name"
-                  optionValue="value"
-                  value={formData.assigned_user_id}
+                  optionValue="id"
+                  value={formData?.assigned_user_id}
                   onChange={handleOnChange}
                   onClick={() => {
                     setTouched((t) => ({
