@@ -7,8 +7,8 @@ import Dashboard from "../dashboard/Dashboard";
 import AuthContext from "../../contexts/AuthContext";
 import Queue from "../queue/Queue";
 import Departments from "../departments/Departments";
-import Triage from "../triage/Triage";
 import Users from "../user/Users";
+import PatientTriage from "../triage/PatientTriage";
 
 const useQueryParams = () => {
   const { search } = useLocation();
@@ -45,7 +45,7 @@ const Main = ( {setLoadingState} ) => {
         p = <Departments />
       break;
       case 'patient-triage':
-        p = <Triage />
+        p = <PatientTriage />
       break;
       case 'users':
         p = <Users axiosInstance={axiosInstance} />

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaUserInjured, FaClock, FaExclamationTriangle, FaTimes } from 'react-icons/fa';
 import PatientTriageModal from '../../modals/PatientTriageModal';
 import LazyTable from '../../components/LazyTable';
@@ -6,23 +6,19 @@ import convertUTCToTimeZone from '../../utils/convertUTCToTimeZone';
 import { LiaUserEditSolid } from 'react-icons/lia';
 import { GoTrash } from 'react-icons/go';
 import { Button } from 'primereact/button';
+import { useAxios } from '../../contexts/AxiosContext';
 
-export default function Triage() {
+export default function PatientTriage() {
+  const axiosInstance = useAxios();
   const [showNewPatientForm, setShowNewPatientForm] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
-
-  const [refreshTable, setRefreshTable] = useState(false);
-
-  const [formData, setFormData] = useState({
-    name: '',
-    address: '',
-    birthday: null,
-    symptoms: '',
-    priority: 'medium',
-    bloodPressure: '',
-    heartRate: '',
-    temperature: ''
+  const [cardTotals, setCardTotals] = useState({
+    urgent: 0,
+    waiting: 0,
+    inprogress: 0,
+    completed: 0
   });
+  const [refreshTable, setRefreshTable] = useState(false);
 
   const [filters, setFilters] = useState({
     priority: 'all',
@@ -72,6 +68,22 @@ export default function Triage() {
     </div>
   }
 
+  const getData = async () => {
+    try {
+      const [cardTotalsResponse] = await Promise.all([
+        axiosInstance.get("/patients/card-totals")
+      ]);
+
+      setCardTotals(cardTotalsResponse.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }
+
+  useEffect(() => {
+    getData();
+  }, [])
+
   return (
     <div className="p-6 mx-auto bg-white">
       {/* Header */}
@@ -98,7 +110,7 @@ export default function Triage() {
             </div>
             <div>
               <p className="text-gray-600">Urgent Cases</p>
-              <p className="text-2xl font-bold">{0}</p>
+              <p className="text-2xl font-bold">{cardTotals.urgent}</p>
             </div>
           </div>
         </div>
@@ -109,7 +121,7 @@ export default function Triage() {
             </div>
             <div>
               <p className="text-gray-600">Waiting</p>
-              <p className="text-2xl font-bold">{0}</p>
+              <p className="text-2xl font-bold">{cardTotals.waiting}</p>
             </div>
           </div>
         </div>
@@ -120,7 +132,7 @@ export default function Triage() {
             </div>
             <div>
               <p className="text-gray-600">In Progress</p>
-              <p className="text-2xl font-bold">{0}</p>
+              <p className="text-2xl font-bold">{cardTotals.inprogress}</p>
             </div>
           </div>
         </div>
@@ -131,7 +143,7 @@ export default function Triage() {
             </div>
             <div>
               <p className="text-gray-600">Completed</p>
-              <p className="text-2xl font-bold">{0}</p>
+              <p className="text-2xl font-bold">{cardTotals.completed}</p>
             </div>
           </div>
         </div>
