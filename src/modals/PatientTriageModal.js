@@ -35,7 +35,7 @@ export default function PatientTriageModal({
   const [errors, setErrors] = useState();
 
   const [formData, setFormData] = useState();
-  const [staffs, setStaffs] = useState();
+  const [staffs,  ] = useState();
 
   const handleOnHide = () => {
     setFormData();
@@ -75,7 +75,7 @@ export default function PatientTriageModal({
 
   const getStaffUsers = async () => {
     await axiosInstance.get('/users/staff').then((response) => {
-      setStaffs(response.data);
+      (response.data);
     })
   }
 
@@ -201,7 +201,7 @@ export default function PatientTriageModal({
                 <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Assign Doctor</label>
                 <Dropdown 
                   className={`w-full rounded-lg ring-0 border ${!touched?.assigned_user_id && errors?.assigned_user_id ? "border-red-500" : ""}`}
-                  placeholder={`Assign a doctor ${JSON.stringify(staffs.find((e) => e.id == formData?.assigned_user_id))}`}
+                  placeholder={`Assign a doctor`}
                   name="assigned_user_id"
                   options={staffs}
                   optionLabel="name"

@@ -1,6 +1,10 @@
+import { useEffect, useState } from "react";
 import { FaLongArrowAltLeft, FaLongArrowAltRight } from "react-icons/fa";
+import { useAxios } from "../../contexts/AxiosContext";
 
-const Queue = () => {
+const Queue = ({profile}) => {
+  const axiosInstance = useAxios();
+
   const currentNumber = "S01";
   const queueItems = [
     { number: "P05", type: "priority" },
@@ -20,6 +24,13 @@ const Queue = () => {
     { name: "Clinic RM 2", icon: "🚪" },
     { name: "Clinic RM 3", icon: "🚪" },
   ];
+
+  const [data, setData] = useState();
+  useEffect(() => {
+    const response = axiosInstance.get('/users/'+profile.id)
+    console.log(response.data);
+    setData(response.data);
+  }, []);
 
   return (
     <div className="w-full">

@@ -39,7 +39,7 @@ const Main = ( {setLoadingState} ) => {
         p = <Dashboard axiosInstance={axiosInstance}/>
       break;
       case 'queue':
-        p = <Queue />
+        p = <Queue profile={profile}/>
       break;
       case 'departments':
         p = <Departments />
