@@ -5,7 +5,7 @@ window.io = io;
 
 const echo = new Echo({
   broadcaster: "socket.io",
-  host: "http://127.0.0.1:6001", // Adjust if needed
+  host: "http://54.206.82.85:6001", // Use your public IP or domain
   transports: ["websocket"], // Force WebSockets
   auth: {
     headers: {

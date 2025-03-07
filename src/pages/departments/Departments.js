@@ -1,196 +1,160 @@
-import React from 'react';
-import { FaUserMd, FaHospital, FaBed, FaUserInjured } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { Building2, Users, BedDouble, Clock, Trash2, PlusCircle, Activity } from 'lucide-react';
+import { useAxios } from '../../contexts/AxiosContext';
 
 export default function Departments() {
-  const departments = [
-    {
-      id: 'RAD',
-      name: 'Radiology',
-      staffCount: 8,
-      occupancy: 65,
-      totalBeds: 12,
-      waitingPatients: 4,
-      status: 'busy'
-    },
-    {
-      id: 'CARD',
-      name: 'Cardiology',
-      staffCount: 12,
-      occupancy: 80,
-      totalBeds: 15,
-      waitingPatients: 6,
-      status: 'full'
-    },
-    {
-      id: 'ER',
-      name: 'Emergency Room',
-      staffCount: 20,
-      occupancy: 45,
-      totalBeds: 25,
-      waitingPatients: 8,
-      status: 'available'
-    },
-    {
-      id: 'PED',
-      name: 'Pediatrics',
-      staffCount: 10,
-      occupancy: 50,
-      totalBeds: 18,
-      waitingPatients: 3,
-      status: 'available'
+  const axiosInstance = useAxios();
+  const [departments, setDepartments] = useState([]);
+
+  useEffect(() => {
+    fetchDepartments();
+  }, []);
+
+  const fetchDepartments = async () => {
+    try {
+      const response = await axiosInstance.get('/departments');
+      setDepartments(response.data);
+    } catch (error) {
+      console.error('Error fetching departments:', error);
     }
-  ];
+  };
+
+  const addDepartment = async () => {
+    try {
+      const newDept = { 
+        name: 'New Department', 
+        staffCount: 0, 
+        occupancy: 0, 
+        totalBeds: 0, 
+        waitingPatients: 0, 
+        status: 'available' 
+      };
+      const response = await axiosInstance.post('/departments', newDept);
+      setDepartments([...departments, response.data]);
+    } catch (error) {
+      console.error('Error adding department:', error);
+    }
+  };
+
+  const deleteDepartment = async (id) => {
+    try {
+      await axiosInstance.delete(`/departments/${id}`);
+      setDepartments(departments.filter(dept => dept.id !== id));
+    } catch (error) {
+      console.error('Error deleting department:', error);
+    }
+  };
 
   const getStatusColor = (status) => {
     const colors = {
-      available: 'bg-green-100 text-green-800',
-      busy: 'bg-yellow-100 text-yellow-800',
-      full: 'bg-red-100 text-red-800'
+      available: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
+      busy: 'bg-amber-50 text-amber-700 ring-amber-600/20',
+      full: 'bg-rose-50 text-rose-700 ring-rose-600/20'
     };
     return colors[status] || colors.available;
   };
 
-  return (
-    <div className="p-6 max-w-7xl mx-auto bg-white">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Departments</h1>
-          <p className="text-gray-600">Overview of hospital departments and their current status</p>
-        </div>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2">
-          <FaHospital />
-          Add Department
-        </button>
-      </div>
+  const getOccupancyColor = (occupancy) => {
+    if (occupancy >= 90) return 'text-rose-600';
+    if (occupancy >= 70) return 'text-amber-600';
+    return 'text-emerald-600';
+  };
 
-      {/* Department Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {departments.map((dept) => (
-          <div key={dept.id} className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">{dept.name}</h3>
-                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(dept.status)}`}>
-                  {dept.status.toUpperCase()}
-                </span>
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Hospital Departments</h1>
+            <p className="mt-2 text-gray-600">Manage and monitor department status and capacity</p>
+          </div>
+          <button 
+            onClick={addDepartment}
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+          >
+            <PlusCircle className="w-5 h-5 mr-2" />
+            Add Department
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {departments.map((dept) => (
+            <div key={dept.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-3">
+                    <Building2 className="w-6 h-6 text-gray-400" />
+                    <h3 className="text-lg font-semibold text-gray-900">{dept.name}</h3>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ring-1 ring-inset ${getStatusColor(dept.status)}`}>
+                    {dept.status?.toUpperCase() || 'ACTIVE'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <Users className="w-5 h-5 text-gray-400" />
+                    <div>
+                      <p className="text-xs text-gray-500">Staff Members</p>
+                      <p className="text-sm font-medium text-gray-900">{dept.staffCount || 0}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <BedDouble className="w-5 h-5 text-gray-400" />
+                    <div>
+                      <p className="text-xs text-gray-500">Bed Capacity</p>
+                      <p className={`text-sm font-medium ${getOccupancyColor(dept.occupancy)}`}>
+                        {dept.occupancy}% of {dept.totalBeds}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <Clock className="w-5 h-5 text-gray-400" />
+                    <div>
+                      <p className="text-xs text-gray-500">Waiting List</p>
+                      <p className="text-sm font-medium text-gray-900">{dept.waitingPatients} patients</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <Activity className="w-5 h-5 text-gray-400" />
+                    <div>
+                      <p className="text-xs text-gray-500">Current Load</p>
+                      <p className={`text-sm font-medium ${getOccupancyColor(dept.occupancy)}`}>
+                        {dept.occupancy >= 90 ? 'High' : dept.occupancy >= 70 ? 'Medium' : 'Low'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 mb-2">Available Services</h4>
+                  <div className="space-y-1">
+                    {dept.specializations?.map((service) => (
+                      <div 
+                        key={service.id}
+                        className="text-sm text-gray-600 bg-gray-50 px-3 py-1.5 rounded-md"
+                      >
+                        {service.name}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
               
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600 flex items-center gap-2">
-                    <FaUserMd className="text-gray-400" />
-                    Staff
-                  </span>
-                  <span className="font-medium">{dept.staffCount}</span>
-                </div>
-                
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600 flex items-center gap-2">
-                    <FaBed className="text-gray-400" />
-                    Beds
-                  </span>
-                  <span className="font-medium">{dept.occupancy}% ({dept.totalBeds})</span>
-                </div>
-                
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600 flex items-center gap-2">
-                    <FaUserInjured className="text-gray-400" />
-                    Waiting
-                  </span>
-                  <span className="font-medium">{dept.waitingPatients}</span>
-                </div>
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
+                <button 
+                  onClick={() => deleteDepartment(dept.id)}
+                  className="inline-flex items-center text-sm text-rose-600 hover:text-rose-700 transition-colors"
+                >
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  Remove Department
+                </button>
               </div>
             </div>
-            
-            <div className="bg-gray-50 px-4 py-3 flex justify-end space-x-3">
-              <button className="text-sm text-blue-600 hover:text-blue-800">
-                View Details
-              </button>
-              <button className="text-sm text-blue-600 hover:text-blue-800">
-                Manage
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Department Stats */}
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200">
-          <h3 className="text-lg font-semibold mb-4">Department Statistics</h3>
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span>Average Occupancy</span>
-                <span className="font-medium">60%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-blue-600 h-2 rounded-full" style={{ width: '60%' }}></div>
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span>Staff Utilization</span>
-                <span className="font-medium">75%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-green-600 h-2 rounded-full" style={{ width: '75%' }}></div>
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span>Patient Satisfaction</span>
-                <span className="font-medium">85%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-yellow-600 h-2 rounded-full" style={{ width: '85%' }}></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200">
-          <h3 className="text-lg font-semibold mb-4">Waiting Times</h3>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Emergency Room</span>
-              <span className="text-sm font-medium">25 mins</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Radiology</span>
-              <span className="text-sm font-medium">45 mins</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Cardiology</span>
-              <span className="text-sm font-medium">60 mins</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Pediatrics</span>
-              <span className="text-sm font-medium">30 mins</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200">
-          <h3 className="text-lg font-semibold mb-4">Staff Overview</h3>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Doctors</span>
-              <span className="text-sm font-medium">25</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Nurses</span>
-              <span className="text-sm font-medium">45</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Technicians</span>
-              <span className="text-sm font-medium">15</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Support Staff</span>
-              <span className="text-sm font-medium">20</span>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>
