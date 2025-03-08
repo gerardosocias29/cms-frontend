@@ -25,19 +25,24 @@ const Queue = ({profile}) => {
     { name: "Clinic RM 3", icon: "🚪" },
   ];
 
-  const [data, setData] = useState();
-  useEffect(() => {
-    const response = axiosInstance.get('/users/'+profile.id)
+  const getUserQueueDetails = async  () => {
+    const response = await axiosInstance.get('/users/'+profile?.id)
     console.log(response.data);
     setData(response.data);
-  }, []);
+  }
+  const [data, setData] = useState();
+  useEffect(() => {
+    if(profile){
+      getUserQueueDetails();
+    }
+  }, [profile]);
 
   return (
     <div className="w-full">
       {/* Department Header */}
       <div className="bg-white rounded-t-2xl">
         <div className="bg-blue-600 text-white p-4 rounded-t-2xl">
-          <h1 className="text-2xl font-bold text-center">Radiology / X-Ray</h1>
+          <h1 className="text-lg font-bold text-center">{ data?.department_specialization?.department?.name } - { data?.department_specialization?.name }</h1>
         </div>
       </div>
 
@@ -58,16 +63,19 @@ const Queue = ({profile}) => {
             <div className="w-full lg:w-3/5">
               <h2 className="text-xl font-semibold mb-4 text-gray-700">In Queue</h2>
               <div className="grid grid-cols-4 gap-3">
-                {queueItems.map((item, index) => (
+                {data?.patients.map((item, index) => (
                   <div
                     key={index}
-                    className={`p-3 rounded-lg text-center font-semibold ${
-                      item.type === 'priority' ? 'bg-red-100 text-red-700' :
-                      item.type === 'special' ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-blue-100 text-blue-700'
-                    }`}
+                    className={`p-3 rounded-lg text-center font-semibold 
+                      cursor-pointer  hover:border 
+                      ${
+                        item.priority.toLowerCase() == 'p' ? 'bg-red-100 border-red-100 text-red-700 hover:border-red-700' :
+                        item.priority.toLowerCase() == 'sc' ? 'bg-yellow-100 border-yellow-100 text-yellow-700 hover:border-yellow-700' :
+                        'bg-blue-100 border-blue-100 text-blue-700 hover:border-blue-700'
+                      }
+                    `}
                   >
-                    {item.number}
+                    {item.priority}{item.priority_number}
                   </div>
                 ))}
               </div>
@@ -84,7 +92,7 @@ const Queue = ({profile}) => {
             <h2 className="text-xl font-semibold text-gray-700">Where to go next?</h2>
             <p className="text-gray-500">Select the patient's next destination after X-Ray</p>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-4 gap-4">
             {nextSteps.map((step, index) => (
               <button
                 key={index}
@@ -97,7 +105,7 @@ const Queue = ({profile}) => {
                 <span className="text-sm text-gray-500">{step.description}</span>
               </button>
             ))}
-            <button className="flex items-center justify-center gap-2 p-4 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors col-span-2">
+            <button className="flex items-center justify-center gap-2 p-4 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors col-span-4">
               <span className="font-medium">End Patient Session</span>
             </button>
           </div>
