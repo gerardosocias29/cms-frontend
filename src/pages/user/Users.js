@@ -48,7 +48,7 @@ export default function Users({axiosInstance}) {
     try {
       const [departmentsResponse, cardTotalsResponse] = await Promise.all([
         axiosInstance.get("/departments"),
-        axiosInstance.get("/users/card-total")
+        axiosInstance.get("/users/get/card-total")
       ]);
 
       setDepartments(departmentsResponse.data);

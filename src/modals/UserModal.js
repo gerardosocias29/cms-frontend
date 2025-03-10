@@ -223,7 +223,7 @@ export default function UserModal({
                 onChange={handleOnChange}
               />
             </div>
-            {formData.role_id == 2 ?
+            {formData.role_id == 3 ?
               <>
                 <div className="flex flex-col">
                   <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Department</label>

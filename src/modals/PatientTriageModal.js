@@ -35,7 +35,7 @@ export default function PatientTriageModal({
   const [errors, setErrors] = useState();
 
   const [formData, setFormData] = useState();
-  const [staffs,  ] = useState();
+  const [staffs, setStaffs] = useState();
 
   const handleOnHide = () => {
     setFormData();
@@ -74,8 +74,8 @@ export default function PatientTriageModal({
   }
 
   const getStaffUsers = async () => {
-    await axiosInstance.get('/users/staff').then((response) => {
-      (response.data);
+    await axiosInstance.get('/users/get/staff').then((response) => {
+      setStaffs(response.data)
     })
   }
 
