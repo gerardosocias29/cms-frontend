@@ -1,130 +1,159 @@
 import { useEffect, useState } from "react";
-import { FaLongArrowAltLeft, FaLongArrowAltRight } from "react-icons/fa";
-import { useAxios } from "../../contexts/AxiosContext";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
-const Queue = ({profile}) => {
-  const axiosInstance = useAxios();
-
-  const currentNumber = "S01";
-  const queueItems = [
-    { number: "P05", type: "priority" },
-    { number: "R03", type: "regular" },
-    { number: "SP05", type: "special" },
-    { number: "SP03", type: "special" },
-    { number: "R05", type: "regular" },
-    { number: "R08", type: "regular" },
-    { number: "R10", type: "regular" },
-    { number: "R12", type: "regular" },
-  ];
+const Queue = ({ profile }) => {
+  const [currentPatient, setCurrentPatient] = useState(null);
+  const [selectedStep, setSelectedStep] = useState(null);
+  const [queueData, setQueueData] = useState({
+    department_specialization: {
+      department: {
+        name: "Radiology",
+      },
+      name: "X-Ray",
+    },
+    patients: [
+      { id: 1, priority: "P", priority_number: "01", status: "waiting" },
+      { id: 2, priority: "SC", priority_number: "02", status: "waiting" },
+      { id: 3, priority: "R", priority_number: "03", status: "waiting" },
+    ],
+  });
 
   const nextSteps = [
-    { name: "Billing", icon: "💳" },
-    { name: "Therapy Center", icon: "🏥" },
-    { name: "Clinic RM 1", icon: "🚪" },
-    { name: "Clinic RM 2", icon: "🚪" },
-    { name: "Clinic RM 3", icon: "🚪" },
+    { id: 1, name: "Billing", icon: "💳" },
+    { id: 2, name: "Therapy Center", icon: "🏥" },
+    { id: 3, name: "Clinic RM 1", icon: "🚪" },
+    { id: 4, name: "Clinic RM 2", icon: "🚪" },
+    { id: 5, name: "Clinic RM 3", icon: "🚪" },
   ];
 
-  const getUserQueueDetails = async  () => {
-    const response = await axiosInstance.get('/users/'+profile?.id)
-    console.log(response.data);
-    setData(response.data);
-  }
-  const [data, setData] = useState();
-  useEffect(() => {
-    if(profile){
-      getUserQueueDetails();
+  const startSession = (patient) => {
+    if (window.confirm(`Start session for ${patient.priority}${patient.priority_number}?`)) {
+      console.log(`Starting session for patient: ${patient.id}`);
+      setCurrentPatient(patient);
+      setQueueData((prev) => ({
+        ...prev,
+        patients: prev.patients.map((p) =>
+          p.id === patient.id ? { ...p, status: "in-progress" } : p
+        ),
+      }));
     }
-  }, [profile]);
+  };
+
+  const endSession = () => {
+    if (!currentPatient) return;
+    console.log(`Ending session for patient: ${currentPatient.id}`);
+    setQueueData((prev) => ({
+      ...prev,
+      patients: prev.patients.filter((p) => p.id !== currentPatient.id),
+    }));
+    setCurrentPatient(null);
+    setSelectedStep(null);
+  };
+
+  const handleNextStepSelection = (step) => {
+    setSelectedStep(step);
+  };
+
+  const handleNextStep = () => {
+    if (!currentPatient || !selectedStep) return;
+    if (window.confirm(`Transfer patient ${currentPatient.id} to ${selectedStep.name}?`)) {
+      console.log(`Transferring patient ${currentPatient.id} to ${selectedStep.name}`);
+      setQueueData((prev) => ({
+        ...prev,
+        patients: prev.patients.filter((p) => p.id !== currentPatient.id),
+      }));
+      setCurrentPatient(null);
+      setSelectedStep(null);
+    }
+  };
 
   return (
     <div className="w-full">
-      {/* Department Header */}
       <div className="bg-white rounded-t-2xl">
         <div className="bg-blue-600 text-white p-4 rounded-t-2xl">
-          <h1 className="text-lg font-bold text-center">{ data?.department_specialization?.department?.name } - { data?.department_specialization?.name }</h1>
+          <h1 className="text-lg font-bold text-center">
+            {queueData?.department_specialization?.department?.name} - {queueData?.department_specialization?.name}
+          </h1>
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="bg-white shadow-lg rounded-b-2xl p-6">
-        {/* Current Number Section */}
         <div className="mb-4">
           <div className="flex flex-col lg:flex-row gap-5">
-
             <div className="text-center w-full lg:w-2/5">
               <h2 className="text-xl text-gray-600">Now Serving</h2>
               <div className="bg-green-500 text-white text-5xl font-bold py-6 px-12 rounded-xl inline-block">
-                {currentNumber}
+                {currentPatient ? `${currentPatient.priority}${currentPatient.priority_number}` : "---"}
               </div>
             </div>
 
-            {/* Queue Section */}
             <div className="w-full lg:w-3/5">
               <h2 className="text-xl font-semibold mb-4 text-gray-700">In Queue</h2>
               <div className="grid grid-cols-4 gap-3">
-                {data?.patients.map((item, index) => (
-                  <div
-                    key={index}
-                    className={`p-3 rounded-lg text-center font-semibold 
-                      cursor-pointer  hover:border 
+                {queueData?.patients.map((patient) => (
+                  <button
+                    key={patient.id}
+                    onClick={() => patient.status === "waiting" && startSession(patient)}
+                    className={`p-3 rounded-lg text-center font-semibold cursor-pointer transition-all
                       ${
-                        item.priority.toLowerCase() == 'p' ? 'bg-red-100 border-red-100 text-red-700 hover:border-red-700' :
-                        item.priority.toLowerCase() == 'sc' ? 'bg-yellow-100 border-yellow-100 text-yellow-700 hover:border-yellow-700' :
-                        'bg-blue-100 border-blue-100 text-blue-700 hover:border-blue-700'
+                        patient.status === "in-progress"
+                          ? "bg-green-100 border-2 border-green-500"
+                          : patient.priority.toLowerCase() === "p"
+                          ? "bg-red-100 hover:border-2 border-red-700"
+                          : patient.priority.toLowerCase() === "sc"
+                          ? "bg-yellow-100 hover:border-2 border-yellow-700"
+                          : "bg-blue-100 hover:border-2 border-blue-700"
                       }
                     `}
                   >
-                    {item.priority}{item.priority_number}
-                  </div>
+                    {patient.priority}{patient.priority_number}
+                  </button>
                 ))}
               </div>
             </div>
-
           </div>
         </div>
 
-        
-
-        {/* Next Steps Section */}
-        <div>
-          <div className="mb-4">
-            <h2 className="text-xl font-semibold text-gray-700">Where to go next?</h2>
-            <p className="text-gray-500">Select the patient's next destination after X-Ray</p>
-          </div>
-          <div className="grid grid-cols-4 gap-4">
-            {nextSteps.map((step, index) => (
-              <button
-                key={index}
-                className="flex flex-col items-center p-3 bg-white border-2 border-gray-200 rounded-xl hover:bg-gray-50 hover:border-blue-300 transition-all"
+        {currentPatient && (
+          <div>
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold text-gray-700">Where to go next?</h2>
+              <p className="text-gray-500">Select the patient's next destination</p>
+            </div>
+            <div className="grid grid-cols-4 gap-4">
+              {nextSteps.map((step) => (
+                <button
+                  key={step.id}
+                  onClick={() => handleNextStepSelection(step)}
+                  className={`flex flex-col items-center p-3 bg-white border-2 border-gray-200 rounded-xl hover:bg-gray-50 hover:border-blue-300 transition-all
+                    ${selectedStep?.id === step.id ? "border-blue-500 bg-blue-100" : ""}`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">{step.icon}</span>
+                    <span className="font-medium text-gray-700">{step.name}</span>
+                  </div>
+                </button>
+              ))}
+              <button 
+                onClick={handleNextStep}
+                disabled={!selectedStep}
+                className="flex items-center justify-center gap-2 p-4 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors col-span-4 disabled:bg-gray-400"
               >
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">{step.icon}</span>
-                  <span className="font-medium text-gray-700">{step.name}</span>
-                </div>
-                <span className="text-sm text-gray-500">{step.description}</span>
+                <span className="font-medium">Next Step</span>
               </button>
-            ))}
-            <button className="flex items-center justify-center gap-2 p-4 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors col-span-4">
-              <span className="font-medium">End Patient Session</span>
-            </button>
+              
+              <button 
+                onClick={endSession}
+                className="flex items-center justify-center gap-2 p-4 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors col-span-4"
+              >
+                <span className="font-medium">End Session</span>
+              </button>
+            </div>
           </div>
-        </div>
-
-        {/* Navigation Buttons */}
-        <div className="mt-8 flex justify-between">
-          <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-            <FaLongArrowAltLeft />
-            Previous Step
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-            Next Step
-            <FaLongArrowAltRight />
-          </button>
-        </div>
+        )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Queue;
