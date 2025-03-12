@@ -11,7 +11,8 @@ const echo = new Echo({
     headers: {
       "X-CSRF-TOKEN": document.head.querySelector('meta[name="csrf-token"]')?.content
     }
-  }
+  },
+  encrypted: true
 });
 
 echo.connector.socket.on("connect", () => {
