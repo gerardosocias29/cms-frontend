@@ -5,7 +5,7 @@ window.io = io;
 
 const echo = new Echo({
   broadcaster: "socket.io",
-  host: "http://54.206.82.85:6001", // Use your public IP or domain
+  host: `${process.env.REACT_APP_ECHO_HOST || "http://54.206.82.85" }:${process.env.REACT_APP_ECHO_PORT || 6001}`, // Use your public IP or domain
   transports: ["websocket"], // Force WebSockets
   auth: {
     headers: {
