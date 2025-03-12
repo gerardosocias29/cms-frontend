@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-// import echo from "../../services/echo";
+import echo from "../../services/echo";
 
 const Dashboard = ({axiosInstance}) => {
 
@@ -8,19 +8,19 @@ const Dashboard = ({axiosInstance}) => {
 
   useEffect(() => {
 
-    // console.log("Echo connected:", echo.connector.socket);
-    // console.log("Subscribed Channels:", echo.connector.channels);
+    console.log("Echo connected:", echo.connector.socket);
+    console.log("Subscribed Channels:", echo.connector.channels);
 
-    // const channel = echo.channel("cms_chat");
+    const channel = echo.channel("cms_chat");
   
-    // channel.listen(".MessageSent", (e) => {
-    //   console.log("📩 Received (Short Name):", e);
-    //   setMessages((prev) => [...prev, e.message]);
-    // });
+    channel.listen(".MessageSent", (e) => {
+      console.log("📩 Received (Short Name):", e);
+      setMessages((prev) => [...prev, e.message]);
+    });
   
-    // return () => {
-    //   echo.leaveChannel("cms_chat");
-    // };
+    return () => {
+      echo.leaveChannel("cms_chat");
+    };
   }, []);
 
   const sendMessage = async (e) => {
