@@ -5,25 +5,43 @@ const cors = require("cors");
 const app = express();
 const port = 5000;
 
-app.use(
-  cors({
-    origin: ["https://app.dumy.one", "http://localhost:3000"], // Add allowed domains
-    methods: "GET,POST",
-    allowedHeaders: "Content-Type",
-  })
-);
+app.use(cors());
 app.use(express.json());
 
-let device = null;
-let printer = null;
+const findPrinter = () => {
+  try {
+    const USB = require("escpos-usb");
+    const usb = require("usb");
 
-try {
-  const USB = require("escpos-usb");
-  device = new USB(); // Try to initialize USB printer
-  printer = new escpos.Printer(device);
-} catch (err) {
-  console.warn("Printer not found, running in mock mode.");
-}
+    const devices = usb.getDeviceList();
+
+    for (const dev of devices) {
+      try {
+        const { idVendor, idProduct } = dev.deviceDescriptor;
+        console.log(`Trying device: VID=${idVendor.toString(16)}, PID=${idProduct.toString(16)}`);
+
+        const testDevice = new USB(idVendor, idProduct);
+        const testPrinter = new escpos.Printer(testDevice);
+
+        testDevice.open((err) => {
+          if (!err) {
+            console.log(`Using printer: VID=${idVendor.toString(16)}, PID=${idProduct.toString(16)}`);
+            testPrinter.text("Test Print: Printer Ready").cut().close();
+          }
+        });
+
+        return { device: testDevice, printer: testPrinter };
+      } catch (innerErr) {
+        console.warn(`Skipping device: ${innerErr.message}`);
+      }
+    }
+  } catch (err) {
+    console.warn("Printer initialization error:", err);
+  }
+
+  console.warn("No working printer found.");
+  return { device: null, printer: null };
+};
 
 app.post("/print", (req, res) => {
   const { text } = req.body;
@@ -31,6 +49,8 @@ app.post("/print", (req, res) => {
   if (!text) {
     return res.status(400).json({ error: "Text is required" });
   }
+
+  const { device, printer } = findPrinter();
 
   if (device) {
     device.open((err) => {
