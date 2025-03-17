@@ -11,8 +11,8 @@ app.use(cors());
 app.use(express.json());
 
 const options = {
-  key: fs.readFileSync("/etc/letsencrypt/live/app.dumy.one/privkey.pem"),
-  cert: fs.readFileSync("/etc/letsencrypt/live/app.dumy.one/fullchain.pem"),
+  key: fs.readFileSync("/etc/letsencrypt/live/api.dumy.one/privkey.pem"),
+  cert: fs.readFileSync("/etc/letsencrypt/live/api.dumy.one/fullchain.pem"),
 };
 
 const findPrinter = () => {
