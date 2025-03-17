@@ -60,7 +60,7 @@ export default function PatientTriageModal({
         summary: response.data.status ? "Success" : "Failed",
         detail: response.data.message
       })
-      onSuccess();
+      onSuccess(response.data);
       handleOnHide();
     }).catch((error) => {
       console.log(errors)

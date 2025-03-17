@@ -7,6 +7,8 @@ import { LiaUserEditSolid } from 'react-icons/lia';
 import { GoTrash } from 'react-icons/go';
 import { Button } from 'primereact/button';
 import { useAxios } from '../../contexts/AxiosContext';
+import axios from 'axios';
+import { BiPrinter } from 'react-icons/bi';
 
 export default function PatientTriage() {
   const axiosInstance = useAxios();
@@ -52,6 +54,14 @@ export default function PatientTriage() {
     return <div className='flex gap-4 justify-end'>
       <Button
         rounded
+        icon={<BiPrinter />}
+        className='text-green-500 border border-green-500 bg-green-100'
+        tooltip='Reprint Priority Number'
+        data-pr-position='top'
+        onClick={() => handlePrint("P01")}
+      />
+      <Button
+        rounded
         icon={<LiaUserEditSolid />}
         className='text-blue-500 border border-blue-500 bg-blue-100'
         tooltip='Edit Patient'
@@ -79,6 +89,17 @@ export default function PatientTriage() {
       console.error("Error fetching data:", error);
     }
   }
+
+  const handlePrint = async (text) => {
+    try {
+      const response = await axios.post(process.env.REACT_APP_PRINT_SERVER_URL+'/print', {
+        text: text,
+      });
+      console.log(response.data);
+    } catch (error) {
+      console.error('Print error:', error);
+    }
+  };
 
   useEffect(() => {
     getData();
@@ -218,7 +239,18 @@ export default function PatientTriage() {
         customActions={customActions}
       />
 
-      <PatientTriageModal visible={showNewPatientForm} data={selectedPatient} onSuccess={() => {setRefreshTable(true)}} onHide={() => {setShowNewPatientForm(false); setSelectedPatient(null)}}/>
+      <PatientTriageModal visible={showNewPatientForm} data={selectedPatient} 
+        onSuccess={(data) => {
+          setRefreshTable(true);
+          
+          if(data.status && data.priority != null && data.priority_number != null){
+            // print the priority number response.data.priority_type + response.data.priority_number
+            // printTicket(data.priority, data.priority_number);
+            handlePrint(data.priority+data.priority_number);
+          }
+        }} 
+        onHide={() => {setShowNewPatientForm(false); setSelectedPatient(null)}}
+      />
     </div>
   )
 }
