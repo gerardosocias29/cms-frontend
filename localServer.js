@@ -1,19 +1,12 @@
 const express = require("express");
 const escpos = require("escpos");
 const cors = require("cors");
-const fs = require("fs");
-const https = require("https");
 
 const app = express();
 const port = 5000;
 
 app.use(cors());
 app.use(express.json());
-
-const options = {
-  key: fs.readFileSync("/etc/letsencrypt/live/app.dumy.one/privkey.pem"),
-  cert: fs.readFileSync("/etc/letsencrypt/live/app.dumy.one/fullchain.pem"),
-};
 
 const findPrinter = () => {
   try {
@@ -78,6 +71,6 @@ app.post("/print", (req, res) => {
   }
 });
 
-https.createServer(options, app).listen(port, () => {
-  console.log(`HTTPS Print server running on https://app.dumy.one:${port}`);
+app.listen(port, () => {
+  console.log(`Print server running on http://localhost:${port}`);
 });
