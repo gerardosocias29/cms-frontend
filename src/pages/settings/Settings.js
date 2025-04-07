@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
+import { useAxios } from '../../contexts/AxiosContext'; // Import useAxios
+
 const Settings = () => {
+  const axiosInstance = useAxios(); // Get axios instance
   const [devices, setDevices] = useState([]);
+  const [defaultPrinter, setDefaultPrinter] = useState(null); // State for default printer { vendorId, productId, name }
   const [error, setError] = useState(null);
   const [info, setInfo] = useState(null);
 
@@ -27,98 +31,89 @@ const Settings = () => {
 
     } catch (err) {
       console.error("Error requesting device:", err);
-      setError(`Error requesting device: ${err.message}`);
+      setError(`Error requesting device: ${err.message}. Ensure you are using HTTPS.`);
       setInfo(null);
     }
   };
 
-  // Function to perform a test print
-  const handleTestPrint = async (device) => {
+  // Function to set default printer via API
+  const handleSetDefaultPrinter = async (device) => {
     setError(null);
-    setInfo(`Attempting test print on ${device.productName}...`);
+    setInfo(`Setting ${device.productName} as default...`);
+    const printerData = {
+        vendorId: device.vendorId,
+        productId: device.productId,
+        name: device.productName || 'Unknown Printer',
+        serialNumber: device.serialNumber // Optional, but good to store
+    };
 
     try {
-      await device.open();
-      setInfo('Device opened...');
-
-      // Select configuration (usually 1)
-      if (device.configuration === null) {
-        await device.selectConfiguration(1);
-        setInfo('Configuration selected...');
-      }
-
-      // Claim interface (find the correct interface number for WinUSB)
-      // This might require experimentation or documentation (e.g., interface 0)
-      const interfaceNumber = 0; // <<<--- MAY NEED ADJUSTMENT
-      await device.claimInterface(interfaceNumber);
-      setInfo(`Interface ${interfaceNumber} claimed...`);
-
-      // Find the OUT endpoint
-      const endpointOut = device.configuration.interfaces[interfaceNumber].alternate.endpoints.find(
-        ep => ep.direction === 'out'
-      );
-      if (!endpointOut) {
-        throw new Error('Could not find OUT endpoint.');
-      }
-      const endpointNumber = endpointOut.endpointNumber;
-      setInfo(`OUT Endpoint ${endpointNumber} found... Sending data...`);
-
-      // --- Prepare ESC/POS Commands ---
-      const encoder = new TextEncoder();
-      const initPrinter = new Uint8Array([0x1B, 0x40]); // ESC @ - Initialize printer
-      const printText = encoder.encode("Test Print\nSuccessful!\n\n\n");
-      const cutPaper = new Uint8Array([0x1D, 0x56, 0x42, 0x00]); // GS V B 0 - Full cut
-
-      // Combine commands
-      const dataToSend = new Uint8Array([...initPrinter, ...printText, ...cutPaper]);
-      // --- End ESC/POS ---
-
-      await device.transferOut(endpointNumber, dataToSend);
-      setInfo(`Test print command sent to ${device.productName}.`);
-
-      // Release interface and close device
-      await device.releaseInterface(interfaceNumber);
-      setInfo('Interface released...');
-      await device.close();
-      setInfo(`Test print complete for ${device.productName}. Device closed.`);
-
+        // *** Backend API Call ***
+        // Replace '/api/settings/default-printer' with your actual endpoint
+        await axiosInstance.post('/settings/default-printer', printerData);
+        setDefaultPrinter(printerData); // Update local state on success
+        setInfo(`${printerData.name} set as default printer.`);
     } catch (err) {
-      console.error("Error during test print:", err);
-      setError(`Test print failed: ${err.message}`);
-      setInfo(null);
-      // Attempt to close device even on error
-      try {
-        if (device.opened) {
-           // Check if interface was claimed before trying to release
-           // This part is tricky as we don't know the exact state on error
-           // await device.releaseInterface(interfaceNumber); // Might fail if not claimed
-           await device.close();
+        console.error("Error setting default printer:", err);
+        setError(`Failed to set default printer: ${err.response?.data?.message || err.message}`);
+        setInfo(null);
+    }
+  };
+
+  // Function to fetch default printer from backend
+  const fetchDefaultPrinter = async () => {
+    console.log("Fetching default printer...");
+    try {
+        const response = await axiosInstance.get('/settings/default-printer');
+        console.log("Backend response for default printer:", response.data);
+        // *** FIX: Check for snake_case vendor_id from backend ***
+        if (response.data && response.data.vendor_id != null) {
+            setDefaultPrinter(response.data);
+            setInfo(`Default printer data loaded from backend: ${response.data.name}`);
+        } else {
+            console.log("No default printer set in backend or invalid data.");
+            setDefaultPrinter(null); // No default set
+            setInfo("No default printer configured in the backend.");
         }
-      } catch (closeErr) {
-        console.error("Error closing device after failed print:", closeErr);
-      }
+    } catch (err) {
+        // Don't show error if it's just 404 (no default set)
+        if (err.response?.status !== 404) {
+            console.error("Error fetching default printer:", err);
+            setError(`Failed to load default printer: ${err.response?.data?.message || err.message}`);
+        }
+         setDefaultPrinter(null);
     }
   };
 
   // Load devices previously granted permission (optional, requires HTTPS)
+  // Load granted devices and fetch default printer on mount
   useEffect(() => {
-    const loadGrantedDevices = async () => {
-      try {
-        const grantedDevices = await navigator.usb.getDevices();
-        setDevices(grantedDevices);
-        if (grantedDevices.length > 0) {
-            setInfo(`${grantedDevices.length} previously permitted device(s) found.`);
+    const initializeSettings = async () => {
+        console.log("Initializing settings...");
+        if (navigator.usb) {
+            try {
+                console.log("Getting WebUSB devices...");
+                const grantedDevices = await navigator.usb.getDevices();
+                console.log("WebUSB devices found:", grantedDevices); // Log found devices
+                setDevices(grantedDevices);
+                if (grantedDevices.length > 0) {
+                    setInfo(`${grantedDevices.length} previously permitted device(s) found.`);
+                } else {
+                    setInfo("No previously permitted devices found. Use 'Add Printer' to grant access.");
+                }
+                 // Fetch default printer setting AFTER getting devices
+                await fetchDefaultPrinter();
+            } catch (err) {
+                console.error("Error getting WebUSB devices:", err); // Log error
+                setError("Could not load previously permitted devices.");
+            }
+
+        } else {
+            setError("WebUSB API not supported by this browser (requires HTTPS). Cannot list or add USB printers.");
         }
-      } catch (err) {
-          console.warn("Could not get previously granted devices:", err);
-      }
     };
-    if (navigator.usb) {
-        loadGrantedDevices();
-    } else {
-        setError("WebUSB API not supported by this browser.");
-    }
-  }, []);
+    initializeSettings();
+  }, []); // Run only on mount
 
 
   return (
@@ -160,21 +155,33 @@ const Settings = () => {
         <p className="text-gray-500">No printers added or detected.</p>
       ) : (
         <ul className="space-y-3">
-          {devices.map((device, index) => (
-            <li key={device.serialNumber || `${device.vendorId}-${device.productId}-${index}`} className="bg-gray-50 p-4 rounded border border-gray-200 flex justify-between items-center">
-              <div>
-                <span className="font-medium text-gray-800">{device.productName || 'Unknown Product'}</span>
-                <span className="text-sm text-gray-500 ml-2"> (Vendor: {device.vendorId}, Product: {device.productId})</span>
-                {device.serialNumber && <span className="block text-xs text-gray-400">Serial: {device.serialNumber}</span>}
-              </div>
-              <button
-                onClick={() => handleTestPrint(device)}
-                className="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-3 rounded text-sm"
-              >
-                Test Print
-              </button>
-            </li>
-          ))}
+          {devices.map((device, index) => {
+            // Ensure type-insensitive comparison and log the result
+            // *** FIX: Access snake_case properties from defaultPrinter state ***
+            const backendVid = defaultPrinter ? Number(defaultPrinter.vendor_id) : null;
+            const backendPid = defaultPrinter ? Number(defaultPrinter.product_id) : null;
+            const deviceVid = Number(device.vendorId);
+            const devicePid = Number(device.productId);
+            const isDefault = defaultPrinter && backendVid === deviceVid && backendPid === devicePid;
+            console.log(`Comparing Device ${device.productName} (VID: ${deviceVid}, PID: ${devicePid}) with Default (VID: ${backendVid}, PID: ${backendPid}) -> isDefault: ${isDefault}`); // Log comparison
+            return (
+              <li key={device.serialNumber || `${device.vendorId}-${device.productId}-${index}`} className={`p-4 rounded border flex justify-between items-center ${isDefault ? 'bg-green-50 border-green-300' : 'bg-gray-50 border-gray-200'}`}>
+                <div>
+                  <span className="font-medium text-gray-800">{device.productName || 'Unknown Product'}</span>
+                  <span className="text-sm text-gray-500 ml-2"> (VID: {device.vendorId}, PID: {device.productId})</span>
+                  {device.serialNumber && <span className="block text-xs text-gray-400">Serial: {device.serialNumber}</span>}
+                  {isDefault && <span className="block text-xs font-semibold text-green-700 mt-1">Default Printer</span>}
+                </div>
+                <button
+                  onClick={() => handleSetDefaultPrinter(device)}
+                  disabled={isDefault} // Disable if already default
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isDefault ? 'Is Default' : 'Set as Default'}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
