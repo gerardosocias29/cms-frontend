@@ -9,6 +9,7 @@ import Queue from "../queue/Queue";
 import Departments from "../departments/Departments";
 import Users from "../user/Users";
 import PatientTriage from "../triage/PatientTriage";
+import Settings from "../settings/Settings"; // Import the new Settings component
 
 const useQueryParams = () => {
   const { search } = useLocation();
@@ -49,6 +50,9 @@ const Main = ( {setLoadingState} ) => {
       break;
       case 'users':
         p = <Users axiosInstance={axiosInstance} />
+      break;
+      case 'settings': // Add case for settings page
+        p = <Settings />
       break;
       default:
         p = <NotFound />

@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { FaBuilding } from "react-icons/fa6";
-import { FaCogs, FaUsers } from "react-icons/fa";
+import { FaCogs, FaUsers, FaPrint } from "react-icons/fa"; // Added FaPrint just in case, using FaCogs for now
 import { RiFirstAidKitFill, RiStackFill } from "react-icons/ri";
 import { BsBuildingsFill } from "react-icons/bs";
 import { useEffect, useState } from "react";
@@ -28,8 +28,8 @@ const Sidebar = ({ profile }) => {
       case 'queue': icon = <RiStackFill />; break;
       case 'departments': icon = <BsBuildingsFill />; break;
       case 'users': icon = <FaUsers />; break;
-      case 'settings': icon = <FaCogs />; break;
-      default: break;
+      case 'settings': icon = <FaCogs />; break; // Keep FaCogs for general settings
+      default: icon = null; break; // Explicitly return null for default
     }
     return icon;
   }
