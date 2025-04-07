@@ -13,8 +13,10 @@ const Layout = ({ profile, setLoadingState, children }) => {
         {/* Navbar */}
         <Navbar profile={profile} setLoadingState={setLoadingState} /> 
         {/* Scrollable Main Content */}
-        <main className="flex-1 overflow-y-auto pt-20 p-4 rounded-lg mt-15 bg-gray-100 lg:ml-64">
-          <div className="rounded-lg shadow-lg overflow-hidden flex-1">
+        {/* Adjusted padding, removed margin-top and rounding from main */}
+        <main className="flex-1 overflow-y-auto pt-20 p-4 bg-gray-100 lg:ml-64"> {/* Assuming lg:ml-64 matches Sidebar width */}
+          {/* Added bg-white, removed flex-1 from inner container */}
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             {children}
           </div>
         </main>

@@ -17,7 +17,6 @@ const AppRouter = () => {
           <Route path="/" element={<Login setLoadingState={setIsLoading} />} />
           <Route path="/queue-display" element={<TvDisplay setLoadingState={setIsLoading} />} />
           <Route path="/queue-display-v2" element={<TvDisplayV2 setLoadingState={setIsLoading} />} />
-          <Route path="/" element={<Login setLoadingState={setIsLoading} />} />
           <Route path="/main" element={<Main setLoadingState={setIsLoading} />} />
         </Routes>
       </BrowserRouter>

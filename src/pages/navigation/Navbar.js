@@ -29,10 +29,11 @@ const Navbar = ( {profile, setLoadingState} ) => {
   ];
 
   return (
-    <nav className="border-b shadow-sm p-4 fixed w-full top-0 z-10 bg-white flex justify-between items-center">
-      <div className="lg:ml-[16.5rem] font-bold text-xl">Clinic Management System</div>
+    <nav className="border-b border-gray-200 shadow-sm px-6 h-16 fixed w-full top-0 z-30 bg-white flex justify-between items-center">
+      <div className="lg:ml-64 font-semibold text-lg text-gray-800">Clinic Management System</div>
       <div className="flex gap-3 items-center">
-        <p>Howdy, {profile?.name || "User"}!</p>
+        {/* Refine greeting style */}
+        <p className="text-sm text-gray-600 mr-3">{profile?.name || "User"}</p>
         <Menu model={menuItems} popup ref={menuRef} />
         <Avatar
           image={profile?.avatar || "https://via.placeholder.com/40"}

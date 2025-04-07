@@ -14,9 +14,10 @@ const Sidebar = ({ profile }) => {
       // console.log("page", page);
     }
     
+    // Use primary color for active link, ensure text contrast
     return location.search.includes(`page=${page}`)
-      ? "bg-gray-200 dark:bg-gray-700"
-      : "hover:bg-gray-100 dark:hover:bg-gray-700"
+      ? "bg-primary text-white dark:bg-primary-dark" // Active state
+      : "hover:bg-gray-200 dark:hover:bg-gray-700" // Hover state
   };
 
   const getIcon = (page) => {
@@ -54,18 +55,19 @@ const Sidebar = ({ profile }) => {
   return (
     <aside
       id="default-sidebar"
-      className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 bg-gray-50 dark:bg-gray-800"
+      className="fixed top-0 left-0 z-20 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700"
     >
-      <div className="h-full px-3 py-4 overflow-y-auto">
+      <div className="h-full pt-20 px-3 py-4 overflow-y-auto">
         <ul className="space-y-2 font-medium">
           <li>
             <Link
               to={`/queue-display-v2`}
               target="_blank"
-              className={`flex items-center p-2 text-gray-900 rounded-lg dark:text-white`}
+              className={`flex items-center p-2 text-gray-700 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group`}
             >
-              <MdOutlineAddToQueue />
-              <span className="ms-3">Queue Display</span>
+              {/* Add margin to icon */}
+              <MdOutlineAddToQueue className="mr-3 flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+              <span>Queue Display</span> {/* Removed ms-3 */}
             </Link>
           </li>
           {
@@ -73,12 +75,15 @@ const Sidebar = ({ profile }) => {
               <li key={i}>
                 <Link
                   to={`/main?page=${module.page}`}
-                  className={`flex items-center p-2 text-gray-900 rounded-lg dark:text-white ${getLinkClass(
+                  className={`flex items-center p-2 text-gray-700 rounded-lg dark:text-white group ${getLinkClass(
                     module.page
                   )}`}
                 >
-                  {module.icon}
-                  <span className="ms-3">{module.name}</span>
+                  {/* Add margin to icon, ensure consistent sizing */}
+                  <span className="mr-3 flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white">
+                    {module.icon}
+                  </span>
+                  <span>{module.name}</span> {/* Removed ms-3 */}
                 </Link>
               </li>
             )
