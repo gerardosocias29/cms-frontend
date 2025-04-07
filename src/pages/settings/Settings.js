@@ -5,7 +5,7 @@ import { useAxios } from '../../contexts/AxiosContext'; // Import useAxios
 const Settings = () => {
   const axiosInstance = useAxios(); // Get axios instance
   const [devices, setDevices] = useState([]);
-  const [defaultPrinter, setDefaultPrinter] = useState(null); // State for default printer { vendorId, productId, name }
+  const [defaultPrinter, setDefaultPrinter] = useState(null); // Default printer data from backend { vendor_id, product_id, name, ... }
   const [error, setError] = useState(null);
   const [info, setInfo] = useState(null);
 
@@ -51,7 +51,8 @@ const Settings = () => {
         // *** Backend API Call ***
         // Replace '/api/settings/default-printer' with your actual endpoint
         await axiosInstance.post('/settings/default-printer', printerData);
-        setDefaultPrinter(printerData); // Update local state on success
+        // *** FIX: Refetch default printer from backend instead of setting local state directly ***
+        await fetchDefaultPrinter(); // This ensures state has correct snake_case keys
         setInfo(`${printerData.name} set as default printer.`);
     } catch (err) {
         console.error("Error setting default printer:", err);
@@ -114,6 +115,7 @@ const Settings = () => {
     };
     initializeSettings();
   }, []); // Run only on mount
+  // Removed the merging useEffect hook
 
 
   return (
@@ -150,39 +152,73 @@ const Settings = () => {
         <p className="text-xs text-gray-500 mt-1">You may need to select the specific printer from a browser prompt.</p>
       </div>
 
-      <h2 className="text-xl font-semibold text-gray-700 mb-3">Connected Printers</h2>
-      {devices.length === 0 ? (
-        <p className="text-gray-500">No printers added or detected.</p>
+      <h2 className="text-xl font-semibold text-gray-700 mb-3">Detected & Default Printers</h2>
+      {(devices.length === 0 && !defaultPrinter) ? (
+          <p className="text-gray-500">No printers detected or configured as default.</p>
       ) : (
-        <ul className="space-y-3">
-          {devices.map((device, index) => {
-            // Ensure type-insensitive comparison and log the result
-            // *** FIX: Access snake_case properties from defaultPrinter state ***
-            const backendVid = defaultPrinter ? Number(defaultPrinter.vendor_id) : null;
-            const backendPid = defaultPrinter ? Number(defaultPrinter.product_id) : null;
-            const deviceVid = Number(device.vendorId);
-            const devicePid = Number(device.productId);
-            const isDefault = defaultPrinter && backendVid === deviceVid && backendPid === devicePid;
-            console.log(`Comparing Device ${device.productName} (VID: ${deviceVid}, PID: ${devicePid}) with Default (VID: ${backendVid}, PID: ${backendPid}) -> isDefault: ${isDefault}`); // Log comparison
-            return (
-              <li key={device.serialNumber || `${device.vendorId}-${device.productId}-${index}`} className={`p-4 rounded border flex justify-between items-center ${isDefault ? 'bg-green-50 border-green-300' : 'bg-gray-50 border-gray-200'}`}>
-                <div>
-                  <span className="font-medium text-gray-800">{device.productName || 'Unknown Product'}</span>
-                  <span className="text-sm text-gray-500 ml-2"> (VID: {device.vendorId}, PID: {device.productId})</span>
-                  {device.serialNumber && <span className="block text-xs text-gray-400">Serial: {device.serialNumber}</span>}
-                  {isDefault && <span className="block text-xs font-semibold text-green-700 mt-1">Default Printer</span>}
-                </div>
-                <button
-                  onClick={() => handleSetDefaultPrinter(device)}
-                  disabled={isDefault} // Disable if already default
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isDefault ? 'Is Default' : 'Set as Default'}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+          <ul className="space-y-3">
+              {/* Iterate over DETECTED devices */}
+              {devices.map((device, index) => {
+                  // Check if this detected device is the default one
+                  const isDefaultForThisDevice = defaultPrinter &&
+                      Number(defaultPrinter.vendor_id) === Number(device.vendorId) &&
+                      Number(defaultPrinter.product_id) === Number(device.productId);
+                  console.log(`Rendering Detected Device ${device.productName} (VID: ${device.vendorId}, PID: ${device.productId}) -> isDefault: ${isDefaultForThisDevice}`);
+
+                  return (
+                      <li key={device.serialNumber || `${device.vendorId}-${device.productId}-detected-${index}`} className={`p-4 rounded border flex justify-between items-center ${isDefaultForThisDevice ? 'bg-green-50 border-green-300' : 'bg-gray-50 border-gray-200'}`}>
+                          <div>
+                              <span className="font-medium text-gray-800">{device.productName || 'Unknown Product'}</span>
+                              <span className="text-sm text-gray-500 ml-2"> (VID: {device.vendorId}, PID: {device.productId})</span>
+                              {device.serialNumber && <span className="block text-xs text-gray-400">Serial: {device.serialNumber}</span>}
+                              {/* Status Badges */}
+                              <div className="flex items-center gap-2 mt-1">
+                                  {isDefaultForThisDevice && (
+                                      <span className="text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">Default</span>
+                                  )}
+                                  <span className="text-xs font-semibold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">Detected</span>
+                              </div>
+                          </div>
+                          {/* Button to set as default (only enabled if not already default) */}
+                          <button
+                              onClick={() => handleSetDefaultPrinter(device)} // Pass the detected device object
+                              disabled={isDefaultForThisDevice} // Disable only if already default
+                              title={isDefaultForThisDevice ? "This is the default printer" : "Set this printer as default"}
+                              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                              {isDefaultForThisDevice ? 'Is Default' : 'Set as Default'}
+                          </button>
+                      </li>
+                  );
+              })}
+
+              {/* Now, check if the default printer exists but was NOT in the detected list */}
+              {defaultPrinter && !devices.some(device =>
+                  Number(defaultPrinter.vendor_id) === Number(device.vendorId) &&
+                  Number(defaultPrinter.product_id) === Number(device.productId)
+              ) && (
+                  <li key={`default-not-connected-${defaultPrinter.vendor_id}-${defaultPrinter.product_id}`} className={`p-4 rounded border flex justify-between items-center bg-yellow-50 border-yellow-300 opacity-75`}>
+                      <div>
+                          <span className="font-medium text-gray-800">{defaultPrinter.name || 'Unknown Product'}</span>
+                          <span className="text-sm text-gray-500 ml-2"> (VID: {defaultPrinter.vendor_id}, PID: {defaultPrinter.product_id})</span>
+                          {defaultPrinter.serial_number && <span className="block text-xs text-gray-400">Serial: {defaultPrinter.serial_number}</span>}
+                          {/* Status Badges */}
+                          <div className="flex items-center gap-2 mt-1">
+                              <span className="text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">Default</span>
+                              <span className="text-xs font-semibold text-red-700 bg-red-100 px-2 py-0.5 rounded-full">Not Connected</span>
+                          </div>
+                      </div>
+                      {/* Button is disabled because it's not connected */}
+                      <button
+                          disabled={true}
+                          title="Cannot set as default: Printer not detected"
+                          className="bg-blue-500 text-white font-bold py-1 px-3 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                          Set as Default
+                      </button>
+                  </li>
+              )}
+          </ul>
       )}
     </div>
   );
