@@ -148,11 +148,11 @@ export default function PatientTriage() {
       // Basic ESC/POS Commands (Adjust as needed for your printer)
       const encoder = new TextEncoder();
       const initPrinter = new Uint8Array([0x1B, 0x40]); // ESC @ - Initialize printer
-      const setLargeFont = new Uint8Array([0x1B, 0x21, 0x30]); // ESC ! 48 - Select large font (double H/W)
+      const setLargeFont = new Uint8Array([0x1D, 0x21, 0x33]); // GS ! 0x33 = Quad size (double width & height x2)
       const setCenter = new Uint8Array([0x1B, 0x61, 0x01]); // ESC a 1 - Center align
-      const printText = encoder.encode(`${queueNum}\n`);
+      const printText = encoder.encode(`\n\n\n\n\n${queueNum}\n`);
       const setNormalFont = new Uint8Array([0x1B, 0x21, 0x00]); // ESC ! 0 - Normal font
-      const printTimestamp = encoder.encode(`${new Date().toLocaleString()}\n\n\n`);
+      const printTimestamp = encoder.encode(`${new Date().toLocaleString()}\n\n\n\n\n`);
       const cutPaper = new Uint8Array([0x1D, 0x56, 0x42, 0x00]); // GS V B 0 - Full cut (or 0x01 for partial)
 
       const dataToSend = new Uint8Array([
