@@ -59,7 +59,7 @@ export default function PatientTriage() {
         rounded
         icon={<BiPrinter />}
         className='text-green-500 border border-green-500 bg-green-100'
-        tooltip='Reprint Priority Number'
+        tooltip='Print Priority Number'
         data-pr-position='top'
         // Now rowData is correctly defined in this scope
         onClick={() => handlePrint(rowData.priority + rowData.priority_number.toString().padStart(2, '0'))}
