@@ -30,7 +30,9 @@ const Navbar = ( {profile, setLoadingState} ) => {
 
   return (
     <nav className="border-b border-gray-200 shadow-sm px-6 h-16 fixed w-full top-0 z-30 bg-white flex justify-between items-center">
-      <div className="lg:ml-64 font-semibold text-lg text-gray-800">Clinic Management System</div>
+      <div className="">
+        <img src="/cms_logo.png" width={100} alt="CMS Logo"/>
+      </div>
       <div className="flex gap-3 items-center">
         {/* Refine greeting style */}
         <p className="text-sm text-gray-600 mr-3">{profile?.name || "User"}</p>

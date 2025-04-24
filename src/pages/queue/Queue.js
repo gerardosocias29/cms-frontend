@@ -10,17 +10,22 @@ const Queue = ({ profile }) => {
   const [currentPatient, setCurrentPatient] = useState(null);
   const [selectedStep, setSelectedStep] = useState(null);
   const [queueData, setQueueData] = useState({
-    department_specialization: {
-      department: {
-        name: profile?.department_specialization?.department?.name || "Department",
-      },
-      name: profile?.department_specialization?.name || "Specialization",
-    },
+    department: profile?.department,
     patients: [],
   });
   const [isLoading, setIsLoading] = useState(true); // Add loading state
   const [error, setError] = useState(null); // Add error state
   const [isActionLoading, setIsActionLoading] = useState(false); // Loading state for actions
+
+  const [departments, setDepartments] = useState();
+  const fetchDepartments = async () => {
+    try {
+      const response = await axiosInstance.get('/departments');
+      setDepartments(response.data);
+    } catch (error) {
+      console.error('Error fetching departments:', error);
+    }
+  };
 
   // Fetch initial queue data
   useEffect(() => {
@@ -44,8 +49,9 @@ const Queue = ({ profile }) => {
     };
 
     fetchPatients();
+    fetchDepartments();
     // TODO: Implement real-time updates (Polling or WebSockets)
-  }, [axiosInstance]);
+  }, []);
 
   // Update header when profile changes
   useEffect(() => {
@@ -197,11 +203,12 @@ const Queue = ({ profile }) => {
   };
 
    const getNextStepButtonClass = (step) => {
-    let baseClass = "flex flex-col items-center p-3 bg-white border-2 border-gray-200 rounded-xl hover:bg-gray-50 hover:border-blue-300 transition-all";
+    let baseClass = "flex flex-col items-center p-3 border-2 rounded-xl hover:bg-gray-50 hover:border-blue-300 transition-all";
     if (selectedStep?.id === step.id) {
-        return `${baseClass} border-blue-500 bg-blue-100`;
+      return `${baseClass} border-blue-500 bg-blue-100`;
+    } else {
+      return `${baseClass} border-gray-200 bg-white`;
     }
-    return baseClass;
    }
 
   // --- Render ---
@@ -212,7 +219,7 @@ const Queue = ({ profile }) => {
       <div className="bg-white rounded-t-2xl">
         <div className="bg-blue-600 text-white p-4 rounded-t-2xl">
           <h1 className="text-lg font-bold text-center">
-            {queueData?.department_specialization?.department?.name} - {queueData?.department_specialization?.name}
+            {profile?.department?.name}
           </h1>
         </div>
       </div>
@@ -272,7 +279,7 @@ const Queue = ({ profile }) => {
                   <p className="text-gray-500">Select the patient's next destination</p>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {nextSteps.map((step) => (
+                  {departments.map((step) => (
                     <button
                       key={step.id}
                       onClick={() => handleNextStepSelection(step)}
@@ -280,7 +287,7 @@ const Queue = ({ profile }) => {
                       disabled={isActionLoading} // Disable while action is loading
                     >
                       <div className="flex items-center justify-center gap-2">
-                        <span className="text-2xl">{step.icon}</span>
+                        {/* <span className="text-2xl">{step.icon}</span> */}
                         <span className="font-medium text-gray-700">{step.name}</span>
                       </div>
                     </button>
@@ -288,23 +295,23 @@ const Queue = ({ profile }) => {
                 </div>
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Next Step Button */}
-                    <button
-                        onClick={handleNextStep}
-                        disabled={!selectedStep || isActionLoading} // Disable if no step selected or loading
-                        className="flex items-center justify-center gap-2 p-4 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                    >
-                        <ArrowRight size={20} />
-                        <span className="font-medium">Next Step</span>
-                    </button>
+                  <button
+                    onClick={handleNextStep}
+                    disabled={!selectedStep || isActionLoading} // Disable if no step selected or loading
+                    className="flex items-center justify-center gap-2 p-4 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  >
+                    <ArrowRight size={20} />
+                    <span className="font-medium">Next Step</span>
+                  </button>
 
-                    {/* End Session Button */}
-                    <button
-                        onClick={endSession}
-                        disabled={isActionLoading} // Disable while action is loading
-                        className="flex items-center justify-center gap-2 p-4 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors disabled:bg-red-300 disabled:cursor-not-allowed"
-                    >
-                        <span className="font-medium">End Session</span>
-                    </button>
+                  {/* End Session Button */}
+                  <button
+                    onClick={endSession}
+                    disabled={isActionLoading} // Disable while action is loading
+                    className="flex items-center justify-center gap-2 p-4 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors disabled:bg-red-300 disabled:cursor-not-allowed"
+                  >
+                    <span className="font-medium">End Session</span>
+                  </button>
                 </div>
               </div>
             )}
