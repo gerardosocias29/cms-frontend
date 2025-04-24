@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useAxios } from "../../contexts/AxiosContext"; // Import the useAxios hook
+import echo from "../../services/echo";
 // Assuming you have a toast context or similar for user feedback
 // import { useToast } from "../../contexts/ToastContext";
 
@@ -27,30 +28,43 @@ const Queue = ({ profile }) => {
     }
   };
 
+  const fetchPatients = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // Use the axiosInstance from the context
+      // The base URL should be configured in AxiosContext
+      const response = await axiosInstance.get("/patients/queue");
+      setQueueData((prev) => ({
+        ...prev,
+        patients: response.data,
+      }));
+    } catch (err) {
+      console.error("Error fetching patients:", err);
+      setError("Failed to load queue data. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Fetch initial queue data
   useEffect(() => {
-    const fetchPatients = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        // Use the axiosInstance from the context
-        // The base URL should be configured in AxiosContext
-        const response = await axiosInstance.get("/patients/queue");
-        setQueueData((prev) => ({
-          ...prev,
-          patients: response.data,
-        }));
-      } catch (err) {
-        console.error("Error fetching patients:", err);
-        setError("Failed to load queue data. Please try again later.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchPatients();
     fetchDepartments();
     // TODO: Implement real-time updates (Polling or WebSockets)
+
+    if(profile?.department_id != null) {
+      const channel = echo.channel("cms_department_" + profile?.department_id);
+    
+      channel.listen(".PatientQueueUpdated", (e) => {
+        console.log("📩 Received (PatientQueueUpdated):", e);
+        fetchPatients();
+      });
+    
+      return () => {
+        echo.leaveChannel("cms_department_" + profile?.department_id);
+      };
+    }
   }, []);
 
   // Update header when profile changes
@@ -124,29 +138,29 @@ const Queue = ({ profile }) => {
   const endSession = async () => {
     if (!currentPatient || isActionLoading) return;
     if (window.confirm(`End session for ${currentPatient.priority}${currentPatient.priority_number}?`)) {
-        setIsActionLoading(true);
-        console.log(`Attempting to end session for patient: ${currentPatient.id}`);
-        try {
-          // API Call to backend
-          await axiosInstance.post(`/queue/end/${currentPatient.id}`);
-          console.log("End session successful");
+      setIsActionLoading(true);
+      console.log(`Attempting to end session for patient: ${currentPatient.id}`);
+      try {
+        // API Call to backend
+        await axiosInstance.post(`/queue/end/${currentPatient.id}`);
+        console.log("End session successful");
 
-          const endedPatientId = currentPatient.id; // Store ID before clearing
-          setCurrentPatient(null);
-          setSelectedStep(null);
-          // Remove patient from local state *after* successful API call
-          setQueueData((prev) => ({
-            ...prev,
-            patients: prev.patients.filter((p) => p.id !== endedPatientId),
-          }));
-          // showToast("Session ended successfully!", "success");
-        } catch (err) {
-           console.error("Failed to end session:", err);
-           setError(`Failed to end session. ${err.response?.data?.message || ''}`);
-           // showToast(`Error ending session: ${err.response?.data?.message || 'Server error'}`, "error");
-        } finally {
-            setIsActionLoading(false);
-        }
+        const endedPatientId = currentPatient.id; // Store ID before clearing
+        setCurrentPatient(null);
+        setSelectedStep(null);
+        // Remove patient from local state *after* successful API call
+        setQueueData((prev) => ({
+          ...prev,
+          patients: prev.patients.filter((p) => p.id !== endedPatientId),
+        }));
+        // showToast("Session ended successfully!", "success");
+      } catch (err) {
+        console.error("Failed to end session:", err);
+        setError(`Failed to end session. ${err.response?.data?.message || ''}`);
+        // showToast(`Error ending session: ${err.response?.data?.message || 'Server error'}`, "error");
+      } finally {
+        setIsActionLoading(false);
+      }
     }
   };
 
@@ -202,14 +216,14 @@ const Queue = ({ profile }) => {
     }
   };
 
-   const getNextStepButtonClass = (step) => {
+  const getNextStepButtonClass = (step) => {
     let baseClass = "flex flex-col items-center p-3 border-2 rounded-xl hover:bg-gray-50 hover:border-blue-300 transition-all";
     if (selectedStep?.id === step.id) {
       return `${baseClass} border-blue-500 bg-blue-100`;
     } else {
       return `${baseClass} border-gray-200 bg-white`;
     }
-   }
+  }
 
   // --- Render ---
 
