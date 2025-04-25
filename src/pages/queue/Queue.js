@@ -29,7 +29,7 @@ const Queue = ({ profile }) => {
   };
 
   const fetchPatients = async () => {
-    setIsLoading(true);
+    // setIsLoading(true);
     setError(null);
     try {
       // Use the axiosInstance from the context
@@ -54,6 +54,12 @@ const Queue = ({ profile }) => {
     // TODO: Implement real-time updates (Polling or WebSockets)
 
     if(profile?.department_id != null) {
+
+      console.log("cms_department_", profile?.department_id);
+
+      console.log("Echo connected:", echo.connector.socket);
+      console.log("Subscribed Channels:", echo.connector.channels);
+
       const channel = echo.channel("cms_department_" + profile?.department_id);
     
       channel.listen(".PatientQueueUpdated", (e) => {
