@@ -34,17 +34,24 @@ const TvDisplayV2 = ({setLoadingState}) => {
     { department: "Therapy Center", number: "P11", type: "priority" },
   ];
 
-  const [date, setDate] = useState();
+  const [date, setDate] = useState(new Date().toLocaleString("en-US", {
+    month: "long", day: "numeric", year: "numeric",
+    hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true
+  }));
+  
   useEffect(() => {
-    setLoadingState(false);
+    // Set initial date
+    setDate(new Date().toLocaleString("en-US", {
+      month: "long", day: "numeric", year: "numeric",
+      hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true
+    }));
     
     // Set up interval to update time every second
     const timer = setInterval(() => {
-      // This will trigger a re-render with the updated time
       setDate(new Date().toLocaleString("en-US", {
         month: "long", day: "numeric", year: "numeric",
         hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true
-      }))
+      }));
     }, 1000);
     
     // Clear interval on component unmount
