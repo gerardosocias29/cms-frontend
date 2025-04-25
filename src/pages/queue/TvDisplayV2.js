@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ReactPlayer from "react-player";
 
 const ServicePoint = ({ department, number, type = "regular", url = null }) => {
@@ -34,8 +34,21 @@ const TvDisplayV2 = ({setLoadingState}) => {
     { department: "Therapy Center", number: "P11", type: "priority" },
   ];
 
+  const [date, setDate] = useState();
   useEffect(() => {
     setLoadingState(false);
+    
+    // Set up interval to update time every second
+    const timer = setInterval(() => {
+      // This will trigger a re-render with the updated time
+      setDate(new Date().toLocaleString("en-US", {
+        month: "long", day: "numeric", year: "numeric",
+        hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true
+      }))
+    }, 1000);
+    
+    // Clear interval on component unmount
+    return () => clearInterval(timer);
   }, []);
 
   return (
@@ -54,14 +67,10 @@ const TvDisplayV2 = ({setLoadingState}) => {
           {/* Use solid background for better contrast */}
           <div className="w-full bg-white p-4 rounded-lg shadow-md min-h-[120px] flex flex-col justify-center">
             <h1 className="text-2xl font-semibold text-gray-800">Asian Orthopedics</h1>
-            <p className="text-lg text-gray-600">Spine and Joints Center</p>
+            <small className="text-gray-600">Spine and Joints Center</small>
             {/* Slightly smaller date/time */}
-            <p className="text-xs text-gray-500 mt-2">
-              { new Date().toLocaleString("en-US", {
-                  month: "long", day: "numeric", year: "numeric",
-                  hour: "numeric", minute: "2-digit", hour12: true
-                })
-              }
+            <p className="text-xl text-gray-500 mt-2">
+              { date || "-"}
             </p>
           </div>
         </div>
