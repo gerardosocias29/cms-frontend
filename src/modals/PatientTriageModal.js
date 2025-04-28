@@ -104,7 +104,7 @@ export default function PatientTriageModal({
 
   return (
     <>
-      <Dialog className="lg:w-1/2 w-[95%]" header={formData?.name ? 'Update Patient' : header} visible={visible} draggable={false} maximizable={false} onHide={handleOnHide}>
+      <Dialog className="lg:w-1/2 w-[95%]" header={formData?.id ? 'Update Patient' : header} visible={visible} draggable={false} maximizable={false} onHide={handleOnHide}>
         {
           formData &&
           <form onSubmit={handleFormSubmit}>
