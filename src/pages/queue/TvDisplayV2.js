@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import ReactPlayer from "react-player";
+import { useAxios } from "../../contexts/AxiosContext";
+import leadingZero from "../../utils/leadingZero";
 
-const ServicePoint = ({ department, number, type = "regular", url = null }) => {
+const ServicePoint = ({ department, number, type = "regular" }) => {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden w-full max-h-[180px]">
       <div className="bg-primary text-lg text-white p-3 text-center font-semibold">
@@ -9,8 +11,8 @@ const ServicePoint = ({ department, number, type = "regular", url = null }) => {
       </div>
       <div className="p-4 text-center">
         <div className={`text-7xl font-bold mb-2 ${
-          type === 'priority' ? 'text-red-600' :
-          type === 'special' ? 'text-orange-500' :
+          type === 'P' ? 'text-red-600' :
+          type === 'SC' ? 'text-orange-500' :
           'text-primary' // Use primary theme color
         }`}>
           {number}
@@ -22,8 +24,18 @@ const ServicePoint = ({ department, number, type = "regular", url = null }) => {
 };
 
 const TvDisplayV2 = ({setLoadingState}) => {
-  
+  const axiosInstance = useAxios();
 
+  const [departments, setDepartments] = useState();
+  const fetchDepartments = async () => {
+    try {
+      const response = await axiosInstance.get('/departments?has_patient=true');
+      setDepartments(response.data);
+    } catch (error) {
+      console.error('Error fetching departments:', error);
+    }
+  };
+  
   const servicePoints = [
     { department: "Radiology / X-Ray", number: "SP01", type: "special" },
     { department: "Clinic RM1", number: "R05", type: "regular" },
@@ -40,6 +52,8 @@ const TvDisplayV2 = ({setLoadingState}) => {
   }));
   
   useEffect(() => {
+    setLoadingState(false);
+
     // Set initial date
     setDate(new Date().toLocaleString("en-US", {
       month: "long", day: "numeric", year: "numeric",
@@ -53,9 +67,12 @@ const TvDisplayV2 = ({setLoadingState}) => {
         hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true
       }));
     }, 1000);
+
+    fetchDepartments();
     
     // Clear interval on component unmount
     return () => clearInterval(timer);
+
   }, []);
 
   return (
@@ -84,23 +101,22 @@ const TvDisplayV2 = ({setLoadingState}) => {
       </div>
 
       {/* Main Content Grid */}
-      <div className="w-full mx-auto gap-6 grid grid-cols-2">
+      <div className="w-full mx-auto">
         {/* Service Points Column 1 */}
-        <div className="w-full grid grid-cols-2 gap-6">
+        <div className="w-full grid grid-cols-4 gap-6">
         {
-          servicePoints.slice(0, 4).map((point, index) => (
+          departments?.map((station, index) => (
             <ServicePoint
               key={index}
-              department={point.department}
-              number={point.number}
-              type={point.type}
-              url={point?.url}
+              department={station.name}
+              number={(station?.patient?.priority || "") + leadingZero(station?.patient?.priority_number || 0)}
+              type={station?.patient?.priority}
             />
           ))
         }
         </div>
         {/* Video Player Area */}
-        <div className="w-full max-h-[380px] rounded-lg shadow-md overflow-hidden"> {/* Added rounding and shadow */}
+        <div className="hidden w-full max-h-[380px] rounded-lg shadow-md overflow-hidden"> {/* Added rounding and shadow */}
           <ReactPlayer
             playing
             width="100%"
@@ -112,7 +128,7 @@ const TvDisplayV2 = ({setLoadingState}) => {
           />
         </div>
         
-        <div className="col-span-2">
+        <div className="hidden col-span-2">
           {/* Service Points Row 2 */}
           <div className="w-full grid grid-cols-4 gap-6">
             {

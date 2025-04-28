@@ -7,7 +7,6 @@ import { LiaUserEditSolid } from 'react-icons/lia';
 import { GoTrash } from 'react-icons/go';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog'; // Import Dialog
-import { Toast } from 'primereact/toast'; // Import Toast
 import { useAxios } from '../../contexts/AxiosContext';
 // import axios from 'axios'; // Marked as unused (using axiosInstance now)
 import { BiPrinter } from 'react-icons/bi';
@@ -227,7 +226,6 @@ export default function PatientTriage() {
 
   return (
     <> {/* Wrap in Fragment to include Toast and Dialog */}
-      <Toast ref={toast} />
       <div className="p-6 mx-auto bg-white">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -294,7 +292,7 @@ export default function PatientTriage() {
         </div>
 
         {/* Filters */}
-        <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200 mb-6">
+        <div className="hidden bg-white p-4 rounded-lg shadow-md border border-gray-200 mb-6">
            <div className="flex gap-4">
              <div>
                <label className="block text-sm font-medium text-gray-700 mb-1">
