@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import ReactPlayer from "react-player";
 import { useAxios } from "../../contexts/AxiosContext";
 import leadingZero from "../../utils/leadingZero";
+import echo from "../../services/echo";
 
 const ServicePoint = ({ department, number, type = "regular" }) => {
   return (
@@ -52,6 +53,7 @@ const TvDisplayV2 = ({setLoadingState}) => {
   }));
   
   useEffect(() => {
+    fetchDepartments();
     setLoadingState(false);
 
     // Set initial date
@@ -68,10 +70,20 @@ const TvDisplayV2 = ({setLoadingState}) => {
       }));
     }, 1000);
 
-    fetchDepartments();
-    
-    // Clear interval on component unmount
-    return () => clearInterval(timer);
+    console.log("Echo connected:", echo.connector.socket);
+    console.log("Subscribed Channels:", echo.connector.channels);
+
+    const channel = echo.channel("cms_patient_queue_display");
+  
+    channel.listen(".PatientQueueDisplay", (e) => {
+      console.log("📩 Received (PatientQueueDisplay):", e);
+      fetchDepartments();
+    });
+  
+    return () => {
+      echo.leaveChannel("cms_patient_queue_display");
+      clearInterval(timer);
+    };
 
   }, []);
 
