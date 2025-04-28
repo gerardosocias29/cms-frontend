@@ -106,7 +106,7 @@ export default function UserModal({
 
   return(
     <>
-      <Dialog className="lg:w-1/2 w-[95%]" header={formData.name ? 'Update User' : header} visible={visible} draggable={false} maximizable={false} onHide={handleOnHide}>
+      <Dialog className="lg:w-1/2 w-[95%]" header={formData.id ? 'Update User' : header} visible={visible} draggable={false} maximizable={false} onHide={handleOnHide}>
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col lg:col-span-2">
