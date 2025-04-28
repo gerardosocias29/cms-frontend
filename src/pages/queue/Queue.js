@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useAxios } from "../../contexts/AxiosContext"; // Import the useAxios hook
 import echo from "../../services/echo";
+import { useToast } from "../../contexts/ToastContext";
 // Assuming you have a toast context or similar for user feedback
 // import { useToast } from "../../contexts/ToastContext";
 
 const Queue = ({ profile }) => {
+  const showToast = useToast();
   const axiosInstance = useAxios(); // Get the configured axios instance
   // const { showToast } = useToast(); // Example: Get toast function
   const [currentPatient, setCurrentPatient] = useState(null);
@@ -39,6 +41,18 @@ const Queue = ({ profile }) => {
         ...prev,
         patients: response.data,
       }));
+
+      const firstInProgressPatient = response.data.find(patient => patient.status === 'in-progress');
+      if(firstInProgressPatient){
+        setCurrentPatient(firstInProgressPatient); // Use updated patient data from response
+        setQueueData((prev) => ({
+          ...prev,
+          patients: prev.patients?.map((p) =>
+            p.id === firstInProgressPatient.id ? firstInProgressPatient : p // Use the updated patient data from response here too
+          ),
+        }));
+      }
+     
     } catch (err) {
       console.error("Error fetching patients:", err);
       setError("Failed to load queue data. Please try again later.");
@@ -79,8 +93,8 @@ const Queue = ({ profile }) => {
         setQueueData(prev => ({
             ...prev,
             department_specialization: {
-                department: { name: profile.department_specialization.department.name },
-                name: profile.department_specialization.name
+              department: { name: profile.department_specialization.department.name },
+              name: profile.department_specialization.name
             }
         }));
     }
@@ -90,18 +104,6 @@ const Queue = ({ profile }) => {
   useEffect(() => {
     console.log("Current patient state AFTER update:", currentPatient);
   }, [currentPatient]);
-
-
-  // TODO: Fetch these dynamically
-  const nextSteps = [
-    { id: 1, name: "Billing", icon: "💳" },
-    { id: 2, name: "Therapy Center", icon: "🏥" },
-    { id: 3, name: "Clinic RM 1", icon: "🚪" },
-    { id: 4, name: "Clinic RM 2", icon: "🚪" },
-    { id: 5, name: "Clinic RM 3", icon: "🚪" },
-  ];
-
-  // --- Action Handlers ---
 
   const startSession = async (patient) => {
     console.log("START SESSION:::::")
@@ -117,6 +119,12 @@ const Queue = ({ profile }) => {
 
         // Log state *before* setting
         console.log("Current patient state BEFORE update:", currentPatient);
+
+        showToast({
+          severity: "success",
+          summary: "Session Started",
+          detail: `Successfully started session for ${patient.priority}${patient.priority_number}.`,
+        });
 
         setCurrentPatient(response.data.patient); // Use updated patient data from response
 
@@ -159,6 +167,12 @@ const Queue = ({ profile }) => {
           ...prev,
           patients: prev.patients.filter((p) => p.id !== endedPatientId),
         }));
+
+        showToast({
+          severity: "success",
+          summary: "Session Ended",
+          detail: `Successfully ended session for ${currentPatient.priority}${currentPatient.priority_number}.`,
+        });
         // showToast("Session ended successfully!", "success");
       } catch (err) {
         console.error("Failed to end session:", err);
@@ -192,6 +206,12 @@ const Queue = ({ profile }) => {
           ...prev,
           patients: prev.patients.filter((p) => p.id !== transferredPatientId),
         }));
+
+        showToast({
+          severity: "success",
+          summary: "Patient Transferred",
+          detail: `Successfully transferred patient to ${selectedStep.name}`,
+        });
         // showToast("Patient transferred successfully!", "success");
       } catch (err) {
          console.error("Failed to transfer patient:", err);
@@ -299,7 +319,7 @@ const Queue = ({ profile }) => {
                   <p className="text-gray-500">Select the patient's next destination</p>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {departments.map((step) => (
+                  {departments?.map((step) => (
                     <button
                       key={step.id}
                       onClick={() => handleNextStepSelection(step)}
