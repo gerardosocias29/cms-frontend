@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useAxios } from "../../contexts/AxiosContext"; // Import the useAxios hook
 import echo from "../../services/echo";
 import { useToast } from "../../contexts/ToastContext";
+import leadingZero from "../../utils/leadingZero";
 // Assuming you have a toast context or similar for user feedback
 // import { useToast } from "../../contexts/ToastContext";
 
@@ -281,7 +282,7 @@ const Queue = ({ profile }) => {
                 <div className="text-center w-full lg:w-2/5">
                   <h2 className="text-xl text-gray-600 mb-2">Now Serving</h2>
                   <div className="bg-green-500 text-white text-5xl font-bold py-6 px-12 rounded-xl inline-block min-h-[100px] flex items-center justify-center">
-                    {currentPatient ? `${currentPatient.priority}${currentPatient.priority_number}` : "---"}
+                    {currentPatient ? `${currentPatient.priority}${leadingZero(currentPatient.priority_number)}` : "---"}
                   </div>
                 </div>
 
@@ -299,7 +300,7 @@ const Queue = ({ profile }) => {
                           className={getPatientButtonClass(patient)}
                           disabled={isActionLoading}
                         >
-                          {patient.priority}{patient.priority_number}
+                          {patient.priority}{leadingZero(patient.priority_number)}
                         </button>
                       ))}
                     </div>

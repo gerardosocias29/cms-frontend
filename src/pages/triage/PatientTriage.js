@@ -10,6 +10,8 @@ import { Dialog } from 'primereact/dialog'; // Import Dialog
 import { useAxios } from '../../contexts/AxiosContext';
 // import axios from 'axios'; // Marked as unused (using axiosInstance now)
 import { BiPrinter } from 'react-icons/bi';
+import convertUTCToTimeZone from '../../utils/convertUTCToTimeZone'
+import leadingZero from '../../utils/leadingZero';
 
 export default function PatientTriage() {
   const axiosInstance = useAxios();
@@ -53,11 +55,12 @@ export default function PatientTriage() {
   
   // FIX: Accept rowData as the parameter
   const customActions = (rowData) => {
-    return <div className='flex gap-4 justify-end'>
+    return <div className='flex justify-end'>
       <Button
         rounded
+        size='small'
         icon={<BiPrinter />}
-        className='text-green-500 border border-green-500 bg-green-100'
+        className='text-green-500 ring-0'
         tooltip='Print Priority Number'
         data-pr-position='top'
         // Now rowData is correctly defined in this scope
@@ -66,7 +69,7 @@ export default function PatientTriage() {
       <Button
         rounded
         icon={<LiaUserEditSolid />}
-        className='text-blue-500 border border-blue-500 bg-blue-100'
+        className='text-blue-500 ring-0'
         tooltip='Edit Patient'
         data-pr-position='top'
         // Use rowData here as well for consistency
@@ -75,7 +78,7 @@ export default function PatientTriage() {
       <Button
         rounded
         icon={<GoTrash />}
-        className='text-red-500 border border-red-500 bg-red-100'
+        className='text-red-500 ring-0'
         tooltip='Delete User'
         data-pr-position='top'
       />
@@ -336,11 +339,12 @@ export default function PatientTriage() {
           selectionMode=""
           api={'/patients'}
           columns={[
-            {field: 'priority_number', header: 'Patient ID', hasTemplate: true, template: (data, rowData) => {
+            {field: 'priority_number', header: 'ID', hasTemplate: true, template: (data, rowData) => {
               return <div className="flex flex-col items-start">
-                <div className="text-sm">{rowData.priority}{rowData.priority_number.toString().padStart(2, '0')}</div>
+                <div>{rowData.priority}{leadingZero(rowData.priority_number || 0)}</div>
               </div>
             }},
+            {field: 'created_at', header: 'Date Created', headerClassname: "text-xs", hasTemplate: true, template: (data) => { return convertUTCToTimeZone(data, "MMM DD, YYYY hh:mm A") }},
             {field: 'name', header: 'Name', headerClassname: "text-xs"},
             {field: 'priority', header: 'Priority', hasTemplate: true, template: (data) => {
               const priority = data == "P" ? "Urgent" : (data == "in-progress" ? "Senior/Pwd" : "Regular") // Note: "in-progress" check seems wrong here for priority
@@ -355,6 +359,7 @@ export default function PatientTriage() {
               </span>
             }},
             {field: 'assigned_to.name', header: 'Assigned To'},
+            {field: 'assigned_to.department.name', header: 'Department'},
           ]}
           actions={true}
           customActions={customActions}
