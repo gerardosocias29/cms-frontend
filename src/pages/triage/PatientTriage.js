@@ -229,9 +229,8 @@ export default function PatientTriage() {
 
   return (
     <> {/* Wrap in Fragment to include Toast and Dialog */}
-      <div className="p-6 mx-auto bg-white">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
+      <div className="p-6">
+        <div className="w-full flex justify-between items-center mb-6">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Patient Triage</h1>
             <p className="text-gray-600">Manage incoming patients and assess priority</p>
@@ -246,7 +245,7 @@ export default function PatientTriage() {
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {/* ... stats cards ... */}
            <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200">
               <div className="flex items-center gap-3">

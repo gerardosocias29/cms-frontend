@@ -3,11 +3,12 @@ import { FaBuilding } from "react-icons/fa6";
 import { FaCogs, FaUsers, FaPrint } from "react-icons/fa"; // Added FaPrint just in case, using FaCogs for now
 import { RiFirstAidKitFill, RiStackFill } from "react-icons/ri";
 import { BsBuildingsFill } from "react-icons/bs";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MdOutlineAddToQueue } from "react-icons/md";
 
-const Sidebar = ({ profile }) => {
+const Sidebar = ({ profile, sidebarOpen, setSidebarOpen }) => {
   const location = useLocation();
+  const sidebarRef = useRef(null);
 
   const getLinkClass = (page = "") => {
     if(location.search.includes(`page=${page}`)){
@@ -54,8 +55,9 @@ const Sidebar = ({ profile }) => {
 
   return (
     <aside
+      ref={sidebarRef}
       id="default-sidebar"
-      className="fixed top-0 left-0 z-20 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700"
+      className={`${sidebarOpen} fixed top-0 left-0 z-20 w-64 h-screen transition-transform ${!sidebarOpen ? '-translate-x-full' : 'translate-x-0'} lg:translate-x-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700`}
     >
       <div className="h-full pt-20 px-3 py-4 overflow-y-auto">
         <ul className="space-y-2 font-medium">

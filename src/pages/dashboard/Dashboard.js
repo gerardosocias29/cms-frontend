@@ -38,7 +38,7 @@ const Dashboard = ({axiosInstance}) => {
 
   return (
     // Using container class for consistent padding/centering defined in tailwind.config.js
-    <div className="container mx-auto py-6">
+    <div className="p-6">
       <h1 className="text-2xl font-semibold text-gray-800 mb-4">Dashboard Chat</h1>
       <div className="chat-container flex flex-col h-[calc(100vh-200px)] border border-gray-200 rounded-lg shadow-sm overflow-hidden">
         {/* Message Display Area */}

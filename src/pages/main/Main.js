@@ -24,6 +24,8 @@ const Main = ( {setLoadingState} ) => {
   const [page, setPage] = useState("dashboard");
   const queryParams = useQueryParams();
   const { logout } = useContext(AuthContext);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebar, setSidebar] = useState(false);
 
   const renderPage = (page) => {
     if(profile) {
@@ -80,11 +82,17 @@ const Main = ( {setLoadingState} ) => {
     const pageParam = queryParams.get("page");
     if (pageParam) {
       setPage(pageParam);
+      setSidebarOpen(false);
     }
   }, [location.search]);
+  
+  useEffect(() => {
+    console.log("sidebarOpen", sidebarOpen);
+    setSidebar(sidebarOpen);
+  }, [sidebarOpen]);
 
   return (
-    <Layout profile={profile} setLoadingState={setLoadingState}>
+    <Layout profile={profile} setLoadingState={setLoadingState} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
       {renderPage(page)}
     </Layout>
   )
