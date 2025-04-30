@@ -128,17 +128,17 @@ const TvDisplayV2 = ({setLoadingState}) => {
         }
         </div>
         {/* Video Player Area */}
-        <div className="hidden w-full max-h-[380px] rounded-lg shadow-md overflow-hidden"> {/* Added rounding and shadow */}
+        {/* <div className="hidden w-full max-h-[380px] rounded-lg shadow-md overflow-hidden">
           <ReactPlayer
             playing
             width="100%"
-            height="100%" // Ensure height fills container
+            height="100%"
             loop={true}
             controls={false}
-            style={{ aspectRatio: "16/9" }} // Keep aspect ratio
+            style={{ aspectRatio: "16/9" }}
             url={"https://www.youtube.com/watch?v=fqMEkSE9CRQ"}
           />
-        </div>
+        </div> */}
         
         <div className="hidden col-span-2">
           {/* Service Points Row 2 */}
