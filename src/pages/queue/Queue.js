@@ -244,7 +244,7 @@ const Queue = ({ profile }) => {
   };
 
   const getNextStepButtonClass = (step) => {
-    let baseClass = "flex flex-col items-center p-3 border-2 rounded-xl hover:bg-gray-50 hover:border-blue-300 transition-all";
+    let baseClass = "flex flex-col justify-center items-center p-2 border-2 rounded-xl hover:bg-gray-50 hover:border-blue-300 transition-all";
     if (selectedStep?.id === step.id) {
       return `${baseClass} border-blue-500 bg-blue-100`;
     } else {
@@ -315,25 +315,54 @@ const Queue = ({ profile }) => {
             {/* Next Step Section */}
             {currentPatient && (
               <div className="mt-6 border-t pt-6">
-                <div className="mb-4">
-                  <h2 className="text-xl font-semibold text-gray-700">Where to go next?</h2>
-                  <p className="text-gray-500">Select the patient's next destination</p>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {departments?.map((step) => (
-                    <button
-                      key={step.id}
-                      onClick={() => handleNextStepSelection(step)}
-                      className={getNextStepButtonClass(step)}
-                      disabled={isActionLoading} // Disable while action is loading
-                    >
-                      <div className="flex items-center justify-center gap-2">
-                        {/* <span className="text-2xl">{step.icon}</span> */}
-                        <span className="font-medium text-gray-700">{step.name}</span>
+                <div className="flex flex-col md:flex-row gap-2">
+                  <div className="w-full md:w-1/2 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-3">Patient Details</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="font-medium text-gray-600">Name:</p>
+                        <p className="text-gray-800">{currentPatient.name || 'N/A'}</p>
                       </div>
-                    </button>
-                  ))}
+                      <div>
+                        <p className="font-medium text-gray-600">Symptoms:</p>
+                        <p className="text-gray-800">{currentPatient.symptoms || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-600">Blood Pressure:</p>
+                        <p className="text-gray-800">{currentPatient.bloodpressure || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-600">Heart Rate:</p>
+                        <p className="text-gray-800">{currentPatient.heartrate ? `${currentPatient.heartrate} BPM` : 'N/A'}</p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-600">Temperature:</p>
+                        <p className="text-gray-800">{currentPatient.temperature ? `${currentPatient.temperature} °C` : 'N/A'}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="">
+                      <h2 className="text-xl font-semibold text-gray-700">Where to go next?</h2>
+                      <p className="text-gray-500">Select the patient's next destination</p>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {departments?.map((step) => (
+                        <button
+                          key={step.id}
+                          onClick={() => handleNextStepSelection(step)}
+                          className={getNextStepButtonClass(step)}
+                          disabled={isActionLoading} // Disable while action is loading
+                        >
+                          <div className="flex items-center justify-center gap-2">
+                            <span className="font-medium text-xs text-gray-700">{step.name}</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
+
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Next Step Button */}
                   <button
