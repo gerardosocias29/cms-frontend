@@ -64,19 +64,21 @@ export default function Users({axiosInstance}) {
   }
 
   const customActions = (data) => {
-    return <div className='flex gap-4 justify-end'>
+    return <div className='flex justify-end'>
       <Button
         rounded
+        size='small'
         icon={<LiaUserEditSolid />}
-        className='text-blue-500 border border-blue-500 bg-blue-100'
+        className='text-blue-500 ring-0'
         tooltip='Edit User'
         data-pr-position='top'
         onClick={() => handleEditUserClick(data)}
       />
       <Button
         rounded
+        size='small'
         icon={<GoTrash />}
-        className='text-red-500 border border-red-500 bg-red-100'
+        className='text-red-500 ring-0'
         tooltip='Delete User'
         data-pr-position='top'
       />
@@ -241,6 +243,7 @@ export default function Users({axiosInstance}) {
           setShowNewUserForm(false)
           setSelectedUser(null)
         }}
+        departments={departments}
       />
     </div>
   );

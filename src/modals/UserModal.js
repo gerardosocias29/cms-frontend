@@ -12,11 +12,13 @@ export default function UserModal({
   onHide,
   onSuccess,
   data = null,
-  header = "Add New User"
+  header = "Add New User",
+  departments
 }) {
   const showToast = useToast();
   const axiosInstance = useAxios();
   const [errors, setErrors] = useState();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [touched, setTouched] = useState({
     name: false,
@@ -41,6 +43,7 @@ export default function UserModal({
 
   const handleOnHide = () => {
     onHide();
+    setIsSubmitting(false);
   }
 
   const handleOnChange = (e) => {
@@ -53,7 +56,7 @@ export default function UserModal({
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-
+    setIsSubmitting(true);
     console.log(formData);
     let api = data == null ? '/users' : '/users/'+formData.id;
     axiosInstance.post(api, formData).then((response) => {
@@ -71,34 +74,31 @@ export default function UserModal({
         summary: "Failed",
         detail: "Failed to " + (data == null ? 'create' : 'update')+ " user."
       })
+      setIsSubmitting(false);
     })
   }
 
-  const [departments, setDepartments] = useState();
-  useEffect(() => {
-    if(visible){
-      axiosInstance.get('/departments').then((response) => setDepartments(response.data));
-    }
-  }, [visible])
+  // const [departments, setDepartments] = useState();
+  // useEffect(() => {
+  //   if(visible){
+  //     axiosInstance.get('/departments').then((response) => setDepartments(response.data));
+  //   }
+  // }, [visible])
 
   useEffect(() => {
-    if(departments){
-      if(data){
-        
-        setFormData((prev) => ({
-          ...prev,
-          ...data,
-          department_id: data?.department_specialization.department_id,
-          specialization_id: data?.department_specialization_id || null,
-          role_id: data?.role_id,
-        }));
-        console.log(formData);
-        
-      } else {
-        setFormData(newData);
-      }
+    if(data){
+      setFormData((prev) => ({
+        ...prev,
+        ...data,
+        department_id: data?.department_specialization.department_id,
+        specialization_id: data?.department_specialization_id || null,
+        role_id: data?.role_id,
+      }));
+      console.log(formData);
+    } else {
+      setFormData(newData);
     }
-  }, [departments])
+  }, [data])
 
   useEffect(() => {
     setTouched();
@@ -276,6 +276,8 @@ export default function UserModal({
                 type="submit"
                 label={`${data != null ? 'Update User' : 'Create User'}`}
                 className="px-3 py-2 w-full rounded-lg font-bold bg-[#030DD8] text-white"
+                // disabled={isSubmitting}
+                loading={isSubmitting}
               />
             </div>
           </div>
