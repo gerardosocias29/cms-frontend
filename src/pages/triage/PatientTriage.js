@@ -25,6 +25,8 @@ export default function PatientTriage() {
   const [printErrorMsg, setPrintErrorMsg] = useState(''); // Store error message for dialog
   const toast = useRef(null); // Ref for Toast component
 
+  const [staffs, setStaffs] = useState();
+
   const [filters, setFilters] = useState({
     priority: 'all',
     status: 'all'
@@ -87,11 +89,13 @@ export default function PatientTriage() {
 
   const getData = async () => {
     try {
-      const [cardTotalsResponse] = await Promise.all([
-        axiosInstance.get("/patients/card-totals")
+      const [cardTotalsResponse, staffsResponse] = await Promise.all([
+        axiosInstance.get("/patients/card-totals"),
+        axiosInstance.get('/users/get/staff')
       ]);
 
       setCardTotals(cardTotalsResponse.data);
+      setStaffs(staffsResponse.data)
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -373,6 +377,7 @@ export default function PatientTriage() {
             }
           }}
           onHide={() => {setShowNewPatientForm(false); setSelectedPatient(null)}}
+          staffs={staffs}
         />
 
         {/* *** ADDED: Print Error Dialog *** */}

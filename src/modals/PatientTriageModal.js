@@ -13,7 +13,8 @@ export default function PatientTriageModal({
   onHide,
   onSuccess = () => {},
   data = null,
-  header = "Add New Patient"
+  header = "Add New Patient",
+  staffs
 }) {
   const axiosInstance = useAxios();
   const showToast = useToast();
@@ -35,11 +36,13 @@ export default function PatientTriageModal({
   const [errors, setErrors] = useState();
 
   const [formData, setFormData] = useState();
-  const [staffs, setStaffs] = useState();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleOnHide = () => {
     setFormData();
     onHide();
+    setIsSubmitting(false);
   }
 
   const handleOnChange = (e) => {
@@ -52,6 +55,7 @@ export default function PatientTriageModal({
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     console.log(formData);
     let api = data == null ? '/patients' : '/patients/'+formData.id;
     axiosInstance.post(api, formData).then((response) => {
@@ -70,19 +74,13 @@ export default function PatientTriageModal({
         summary: "Failed",
         detail: "Failed to " + (data == null ? 'create' : 'update')+ " patient."
       })
+      setIsSubmitting(false);
     })
   }
 
-  const getStaffUsers = async () => {
-    await axiosInstance.get('/users/get/staff').then((response) => {
-      setStaffs(response.data)
-    })
-  }
-
+  
   useEffect( () => {
     if(visible){
-      getStaffUsers();
-
       const initialTouchedState = Object.fromEntries(fields.map(field => [field, false]));
       setTouched(initialTouchedState);
 
@@ -203,7 +201,7 @@ export default function PatientTriageModal({
                   className={`w-full rounded-lg ring-0 border ${!touched?.assigned_user_id && errors?.assigned_user_id ? "border-red-500" : ""}`}
                   placeholder={`Assign a doctor`}
                   name="assigned_user_id"
-                  options={staffs}
+                  options={staffs || []}
                   optionLabel="name"
                   optionValue="id"
                   value={formData?.assigned_user_id}
@@ -308,6 +306,7 @@ export default function PatientTriageModal({
                   type="submit"
                   label={`${data != null ? 'Update User' : 'Create Patient'}`}
                   className="px-3 py-2 w-full rounded-lg font-bold bg-[#030DD8] text-white"
+                  loading={isSubmitting}
                 />
               </div>
             </div>
