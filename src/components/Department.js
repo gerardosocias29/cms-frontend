@@ -56,7 +56,7 @@ const Department = ({
             <Users className="w-5 h-5 text-gray-400" />
             <div>
               <p className="text-xs text-gray-500">Staff Members</p>
-              <p className="text-sm font-medium text-gray-900">{department.staffCount || 0}</p>
+              <p className="text-sm font-medium text-gray-900">{department.staffs || 0}</p>
             </div>
           </div>
 
