@@ -147,7 +147,7 @@ export default function SpecializationModal({
               icon={<PlusCircle size={16} className="mr-1" />}
               label="Add"
               onClick={addSpecialization}
-              className="bg-[#030DD8] text-white rounded-lg"
+              className="bg-[#030DD8] text-white rounded-lg p-2"
             />
           </div>
         </div>

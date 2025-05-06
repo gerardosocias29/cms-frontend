@@ -115,7 +115,7 @@ export default function DepartmentModal({
               <InputNumber 
                 name="staffCount"
                 required
-                className={`w-full rounded-lg ring-0 border ${!touched?.staffCount && errors?.staffCount ? "border-red-500" : ""}`}
+                inputClassName={`w-full rounded-lg ring-0 px-3 py-2 border ${!touched?.staffCount && errors?.staffCount ? "border-red-500" : ""}`}
                 placeholder="Staff Count"
                 value={formData.staffCount}
                 onValueChange={(e) => {
@@ -140,7 +140,7 @@ export default function DepartmentModal({
               <InputNumber 
                 name="totalBeds"
                 required
-                className={`w-full rounded-lg ring-0 border ${!touched?.totalBeds && errors?.totalBeds ? "border-red-500" : ""}`}
+                inputClassName={`w-full rounded-lg ring-0 px-3 py-2 border ${!touched?.totalBeds && errors?.totalBeds ? "border-red-500" : ""}`}
                 placeholder="Total Beds"
                 value={formData.totalBeds}
                 onValueChange={(e) => {
