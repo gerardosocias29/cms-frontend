@@ -65,11 +65,15 @@ const TvDisplayV2 = ({setLoadingState}) => {
 
       utterance.voice = voices.find(v => v.name.includes("Male") || v.name.includes("John"));
       speechSynthesis.speak(utterance);
+
+      // on done speaking
+      utterance.onend = () => {
+        setActiveClick(false);
+        bell.pause();
+        bell.currentTime = 0;
+        speechSynthesis.cancel();
+      };
     }, 1000);
-    
-    setTimeout(() => {
-      setActiveClick(false);
-    }, 5000);
   }
   
   useEffect(() => {
