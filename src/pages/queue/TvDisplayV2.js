@@ -47,6 +47,10 @@ const TvDisplayV2 = ({setLoadingState}) => {
   const bell = new Audio('/assets/mp3/bell.mp3');
 
   const callOutInQueue = (e) => {
+    if(!e.department_name || !e.number || !e.priority){
+      return;
+    }
+
     console.log("Call out in queue:", e);
     setActiveClick(true);
 
@@ -100,7 +104,7 @@ const TvDisplayV2 = ({setLoadingState}) => {
 
     callOutChannel.listen(".CallOutQueue", (e) => {
       console.log("📩 Received (CallOutQueue):", e);
-      callOutInQueue(e);
+      callOutInQueue(e.data);
     });
   
     return () => {
@@ -122,7 +126,7 @@ const TvDisplayV2 = ({setLoadingState}) => {
           {/* Content inside image div removed for cleaner look */}
         </div>
         {/* Text Info Area */}
-        <div className="w-1/3 flex items-center" onClick={callOutInQueue}>
+        <div className="w-1/3 flex items-center">
           {/* Use solid background for better contrast */}
           <div className="w-full bg-white p-4 rounded-lg shadow-md min-h-[120px] flex flex-col justify-center">
             <h1 className="text-2xl font-semibold text-gray-800">Asian Orthopedics</h1>
