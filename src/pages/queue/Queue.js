@@ -253,11 +253,11 @@ const Queue = ({ profile }) => {
   }
 
   const [isCalling, setIsCalling] = useState(false);
-  const callOutInQueue = async () => {
+  const callOutInQueue = () => {
     setIsCalling(true);
     console.log("Call out in queue");
     // Route::post('/queue/call-out/{patient}', [PatientQueueController::class, 'callOutQueue']);
-    await axiosInstance.post(`/queue/call-out/${currentPatient.id}`).then((response) => {
+    axiosInstance.post(`/queue/call-out/${currentPatient.id}`).then((response) => {
       console.log("Call out successful");
       setIsCalling(false);
     }).catch((error) => {
