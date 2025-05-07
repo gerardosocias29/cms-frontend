@@ -36,7 +36,7 @@ const Department = ({
   const safeDepartment = {
     id: department.id || 0,
     name: typeof department.name === 'string' ? department.name : 'Unnamed Department',
-    staffs: Number(department.staffs || department.staffCount || 0),
+    staffs: Number(department.staffs?.length || 0),
     totalBeds: Number(department.totalBeds || 0),
     occupancy: Number(department.occupancy || 0),
     waitingPatients: Number(department.waitingPatients || 0),
@@ -80,7 +80,7 @@ const Department = ({
             <Users className="w-5 h-5 text-gray-400" />
             <div>
               <p className="text-xs text-gray-500">Staff Members</p>
-              <p className="text-sm font-medium text-gray-900">{safeDepartment.staffs.length || 0}</p>
+              <p className="text-sm font-medium text-gray-900">{safeDepartment.staffs || 0}</p>
             </div>
           </div>
 
