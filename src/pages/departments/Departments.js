@@ -22,9 +22,39 @@ export default function Departments() {
   const fetchDepartments = async () => {
     try {
       const response = await axiosInstance.get('/departments');
-      setDepartments(response.data);
+      console.log('Departments API response:', response.data);
+
+      // Check if response.data is an array
+      if (!Array.isArray(response.data)) {
+        console.error('API response is not an array:', response.data);
+        // Try to extract data from a nested property if it exists
+        const possibleDataFields = ['data', 'departments', 'items', 'results'];
+        for (const field of possibleDataFields) {
+          if (response.data && Array.isArray(response.data[field])) {
+            console.log(`Found array data in response.data.${field}`);
+            setDepartments(response.data[field]);
+            return;
+          }
+        }
+        // If we can't find an array, set an empty array
+        setDepartments([]);
+        return;
+      }
+
+      // Validate each department object
+      const validDepartments = response.data.filter(dept => {
+        if (!dept || typeof dept !== 'object') {
+          console.error('Invalid department in API response:', dept);
+          return false;
+        }
+        return true;
+      });
+
+      console.log(`Found ${validDepartments.length} valid departments out of ${response.data.length}`);
+      setDepartments(validDepartments);
     } catch (error) {
       console.error('Error fetching departments:', error);
+      setDepartments([]);
     }
   };
 
@@ -89,15 +119,29 @@ export default function Departments() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {departments.map((dept) => (
-            <Department
-              key={dept.id}
-              department={dept}
-              onEdit={editDepartment}
-              onDelete={deleteDepartment}
-              onManageSpecializations={manageSpecializations}
-            />
-          ))}
+          {Array.isArray(departments) ? (
+            departments.map((dept) => {
+              // Check if dept is a valid object
+              if (!dept || typeof dept !== 'object') {
+                console.error('Invalid department object:', dept);
+                return null;
+              }
+
+              return (
+                <Department
+                  key={dept.id || Math.random()}
+                  department={dept}
+                  onEdit={editDepartment}
+                  onDelete={deleteDepartment}
+                  onManageSpecializations={manageSpecializations}
+                />
+              );
+            })
+          ) : (
+            <div className="col-span-3 text-center py-8">
+              <p className="text-gray-500">No departments found or data is loading...</p>
+            </div>
+          )}
         </div>
       </div>
 

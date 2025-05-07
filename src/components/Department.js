@@ -18,10 +18,34 @@ const Department = ({
   onManageSpecializations,
   showActions = true
 }) => {
+  // Debug the department object
+  console.log('Department component received:', department);
+
   // Handle null or undefined department
   if (!department) {
     return null;
   }
+
+  // Ensure department is an object
+  if (typeof department !== 'object') {
+    console.error('Department is not an object:', department);
+    return null;
+  }
+
+  // Create a safe department object with defaults for all required properties
+  const safeDepartment = {
+    id: department.id || 0,
+    name: typeof department.name === 'string' ? department.name : 'Unnamed Department',
+    staffs: Number(department.staffs || department.staffCount || 0),
+    totalBeds: Number(department.totalBeds || 0),
+    occupancy: Number(department.occupancy || 0),
+    waitingPatients: Number(department.waitingPatients || 0),
+    status: typeof department.status === 'string' ? department.status : 'available',
+    specializations: Array.isArray(department.specializations) ? department.specializations : []
+  };
+
+  // Debug the safe department object
+  console.log('Safe department object:', safeDepartment);
 
   const getStatusColor = (status) => {
     const colors = {
@@ -44,10 +68,10 @@ const Department = ({
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <Building2 className="w-6 h-6 text-gray-400" />
-            <h3 className="text-lg font-semibold text-gray-900">{department.name}</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{safeDepartment.name}</h3>
           </div>
-          <span className={`px-3 py-1 rounded-full text-xs font-medium ring-1 ring-inset ${getStatusColor(department.status)}`}>
-            {department.status?.toUpperCase() || 'ACTIVE'}
+          <span className={`px-3 py-1 rounded-full text-xs font-medium ring-1 ring-inset ${getStatusColor(safeDepartment.status)}`}>
+            {safeDepartment.status?.toUpperCase() || 'ACTIVE'}
           </span>
         </div>
 
@@ -56,7 +80,7 @@ const Department = ({
             <Users className="w-5 h-5 text-gray-400" />
             <div>
               <p className="text-xs text-gray-500">Staff Members</p>
-              <p className="text-sm font-medium text-gray-900">{department.staffs || 0}</p>
+              <p className="text-sm font-medium text-gray-900">{safeDepartment.staffs.length || 0}</p>
             </div>
           </div>
 
@@ -64,8 +88,8 @@ const Department = ({
             <BedDouble className="w-5 h-5 text-gray-400" />
             <div>
               <p className="text-xs text-gray-500">Bed Capacity</p>
-              <p className={`text-sm font-medium ${getOccupancyColor(department.occupancy)}`}>
-                {department.occupancy}% of {department.totalBeds}
+              <p className={`text-sm font-medium ${getOccupancyColor(safeDepartment.occupancy)}`}>
+                {safeDepartment.occupancy}% of {safeDepartment.totalBeds}
               </p>
             </div>
           </div>
@@ -74,7 +98,7 @@ const Department = ({
             <Clock className="w-5 h-5 text-gray-400" />
             <div>
               <p className="text-xs text-gray-500">Waiting List</p>
-              <p className="text-sm font-medium text-gray-900">{department.waitingPatients || 0} patients</p>
+              <p className="text-sm font-medium text-gray-900">{safeDepartment.waitingPatients} patients</p>
             </div>
           </div>
 
@@ -82,8 +106,8 @@ const Department = ({
             <Activity className="w-5 h-5 text-gray-400" />
             <div>
               <p className="text-xs text-gray-500">Current Load</p>
-              <p className={`text-sm font-medium ${getOccupancyColor(department.occupancy)}`}>
-                {department.occupancy >= 90 ? 'High' : department.occupancy >= 70 ? 'Medium' : 'Low'}
+              <p className={`text-sm font-medium ${getOccupancyColor(safeDepartment.occupancy)}`}>
+                {safeDepartment.occupancy >= 90 ? 'High' : safeDepartment.occupancy >= 70 ? 'Medium' : 'Low'}
               </p>
             </div>
           </div>
@@ -94,7 +118,7 @@ const Department = ({
             <h4 className="text-sm font-medium text-gray-900">Available Services</h4>
             {onManageSpecializations && (
               <button
-                onClick={() => onManageSpecializations(department)}
+                onClick={() => onManageSpecializations(safeDepartment)}
                 className="inline-flex items-center text-xs text-indigo-600 hover:text-indigo-700 transition-colors"
               >
                 <ListPlus className="w-3 h-3 mr-1" />
@@ -103,15 +127,27 @@ const Department = ({
             )}
           </div>
           <div className="space-y-1">
-            {department.specializations && department.specializations.length > 0 ? (
-              department.specializations.map((service) => (
-                <div
-                  key={service.id}
-                  className="text-sm text-gray-600 bg-gray-50 px-3 py-1.5 rounded-md"
-                >
-                  {service.name}
-                </div>
-              ))
+            {Array.isArray(safeDepartment.specializations) && safeDepartment.specializations.length > 0 ? (
+              safeDepartment.specializations.map((service, index) => {
+                // Ensure service is an object with a name property
+                if (!service || typeof service !== 'object') {
+                  console.error('Invalid service object:', service);
+                  return null;
+                }
+
+                const serviceName = service.name ?
+                  (typeof service.name === 'string' ? service.name : 'Invalid Service Name')
+                  : 'Unknown Service';
+
+                return (
+                  <div
+                    key={service.id || `service-${index}-${Math.random()}`}
+                    className="text-sm text-gray-600 bg-gray-50 px-3 py-1.5 rounded-md"
+                  >
+                    {serviceName}
+                  </div>
+                );
+              })
             ) : (
               <div className="text-sm text-gray-500 italic">No services available</div>
             )}
@@ -122,14 +158,14 @@ const Department = ({
       {showActions && (
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-between">
           <button
-            onClick={() => onEdit && onEdit(department)}
+            onClick={() => onEdit && onEdit(safeDepartment)}
             className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 transition-colors"
           >
             <Edit className="w-4 h-4 mr-1" />
             Edit Department
           </button>
           <button
-            onClick={() => onDelete && onDelete(department.id)}
+            onClick={() => onDelete && onDelete(safeDepartment.id)}
             className="inline-flex items-center text-sm text-rose-600 hover:text-rose-700 transition-colors"
           >
             <Trash2 className="w-4 h-4 mr-1" />
