@@ -43,8 +43,8 @@ export default function PatientTriage() {
 
   const getStatusColor = (status) => {
     const colors = {
-      'waiting': 'bg-yellow-100 text-yellow-800',
-      'in-progress': 'bg-blue-100 text-blue-800',
+      'waiting': 'bg-blue-100 text-blue-800',
+      'in-progress': 'bg-yellow-100 text-yellow-800',
       'completed': 'bg-green-100 text-green-800'
     };
     return colors[status] || colors['waiting'];
@@ -356,7 +356,7 @@ export default function PatientTriage() {
               </span>
             }},
             {field: 'status', header: 'Status', hasTemplate: true, template: (data) => {
-              const status = data == "completed" ? "Completed" : (data == "SC" ? "In Progress" : "Waiting") // Note: "SC" check seems wrong here for status
+              const status = data == "completed" ? "Completed" : (data == "in-progress" ? "In Progress" : "Waiting") // Note: "SC" check seems wrong here for status
               return <span className={`${getStatusColor(data)} px-3 py-1 rounded-full uppercase font-medium text-xs`}>
                 {status}
               </span>
