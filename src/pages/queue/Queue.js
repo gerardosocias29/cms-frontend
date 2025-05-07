@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Phone } from "lucide-react";
 import { useAxios } from "../../contexts/AxiosContext"; // Import the useAxios hook
 import echo from "../../services/echo";
 import { useToast } from "../../contexts/ToastContext";
@@ -252,6 +252,20 @@ const Queue = ({ profile }) => {
     }
   }
 
+  const [isCalling, setIsCalling] = useState(false);
+  const callOutInQueue = async () => {
+    setIsCalling(true);
+    console.log("Call out in queue");
+    // Route::post('/queue/call-out/{patient}', [PatientQueueController::class, 'callOutQueue']);
+    await axiosInstance.post(`/queue/call-out/${currentPatient.id}`).then((response) => {
+      console.log("Call out successful");
+      setIsCalling(false);
+    }).catch((error) => {
+      console.log("Call out failed", error);
+      setIsCalling(false);
+    });
+  }
+
   // --- Render ---
 
   return (
@@ -363,7 +377,17 @@ const Queue = ({ profile }) => {
                   </div>
                 </div>
 
-                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Call Out Button */}
+                  <button
+                    onClick={callOutInQueue}
+                    loading={isCalling} // Disable while action is loading
+                    className="flex items-center justify-center gap-2 p-4 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-colors disabled:bg-green-300 disabled:cursor-not-allowed"
+                  >
+                    <Phone size={20} />
+                    <span className="font-medium">Call Out</span>
+                  </button>
+
                   {/* Next Step Button */}
                   <button
                     onClick={handleNextStep}

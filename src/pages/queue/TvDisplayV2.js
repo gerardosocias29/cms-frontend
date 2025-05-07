@@ -36,21 +36,37 @@ const TvDisplayV2 = ({setLoadingState}) => {
       console.error('Error fetching departments:', error);
     }
   };
-  
-  const servicePoints = [
-    { department: "Radiology / X-Ray", number: "SP01", type: "special" },
-    { department: "Clinic RM1", number: "R05", type: "regular" },
-    { department: "Clinic RM2", number: "R06", type: "regular" },
-    { department: "Clinic RM3", number: "SP01", type: "special" },
-    { department: "Cashier 01", number: "R01", type: "regular" },
-    { department: "Cashier 02", number: "P01", type: "priority" },
-    { department: "Therapy Center", number: "P11", type: "priority" },
-  ];
-
+ 
   const [date, setDate] = useState(new Date().toLocaleString("en-US", {
     month: "long", day: "numeric", year: "numeric",
     hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true
   }));
+
+  const [activeClick, setActiveClick] = useState(false);
+  const voices = speechSynthesis.getVoices();
+  const bell = new Audio('/assets/mp3/bell.mp3');
+
+  const callOutInQueue = (e) => {
+    console.log("Call out in queue:", e);
+    setActiveClick(true);
+
+    if(activeClick) return;
+    // Play the bell sound
+    bell.play();
+    setTimeout(() => {
+      const utterance = new SpeechSynthesisUtterance(`${e.priority}${leadingZero(e.number)}, on ${e.department_name}`);
+      utterance.volume = 1; // 🔊 Volume: 0.0 (mute) to 1.0 (max)
+      utterance.rate = 1;   // 🚀 Speed: 0.1 (slow) to 10 (fast), default is 1
+      utterance.pitch = 1;  // 🎼 Pitch: 0 (low) to 2 (high)
+
+      utterance.voice = voices.find(v => v.name.includes("Male") || v.name.includes("John"));
+      speechSynthesis.speak(utterance);
+    }, 1000);
+    
+    setTimeout(() => {
+      setActiveClick(false);
+    }, 5000);
+  }
   
   useEffect(() => {
     fetchDepartments();
@@ -79,6 +95,13 @@ const TvDisplayV2 = ({setLoadingState}) => {
       console.log("📩 Received (PatientQueueDisplay):", e);
       fetchDepartments();
     });
+
+    const callOutChannel = echo.channel("cms_call_out_queue");
+
+    callOutChannel.listen(".CallOutQueue", (e) => {
+      console.log("📩 Received (CallOutQueue):", e);
+      callOutInQueue(e);
+    });
   
     return () => {
       echo.leaveChannel("cms_patient_queue_display");
@@ -94,12 +117,12 @@ const TvDisplayV2 = ({setLoadingState}) => {
       <div className="w-full flex justify-between items-stretch gap-6 mb-6">
         {/* Logo/Image Area */}
         <div className="w-2/3 bg-cover bg-center rounded-lg shadow-md min-h-[120px]"
-             style={{ backgroundImage: 'url(/asianorthopedics_small.jpg)' }} // Keep inline style for background image
+          style={{ backgroundImage: 'url(/asianorthopedics_small.jpg)' }} // Keep inline style for background image
         >
           {/* Content inside image div removed for cleaner look */}
         </div>
         {/* Text Info Area */}
-        <div className="w-1/3 flex items-center">
+        <div className="w-1/3 flex items-center" onClick={callOutInQueue}>
           {/* Use solid background for better contrast */}
           <div className="w-full bg-white p-4 rounded-lg shadow-md min-h-[120px] flex flex-col justify-center">
             <h1 className="text-2xl font-semibold text-gray-800">Asian Orthopedics</h1>
@@ -140,8 +163,7 @@ const TvDisplayV2 = ({setLoadingState}) => {
           />
         </div> */}
         
-        <div className="hidden col-span-2">
-          {/* Service Points Row 2 */}
+        {/* <div className="hidden col-span-2">
           <div className="w-full grid grid-cols-4 gap-6">
             {
               servicePoints.slice(4).map((point, index) => (
@@ -155,7 +177,7 @@ const TvDisplayV2 = ({setLoadingState}) => {
               ))
             }
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
