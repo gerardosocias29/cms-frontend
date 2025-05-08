@@ -78,9 +78,20 @@ export default function PatientTriageModal({
     })
   }
 
-  
+  const [departments, setDepartments] = useState();
+  const fetchDepartments = async () => {
+    try {
+      const response = await axiosInstance.get('/departments');
+      setDepartments(response.data);
+    } catch (error) {
+      console.error('Error fetching departments:', error);
+    }
+  };
+   
   useEffect( () => {
     if(visible){
+      fetchDepartments();
+
       const initialTouchedState = Object.fromEntries(fields.map(field => [field, false]));
       setTouched(initialTouchedState);
 
@@ -196,25 +207,25 @@ export default function PatientTriageModal({
               </div>
 
               <div className="flex flex-col lg:col-span-4">
-                <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Assign Doctor</label>
+                <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Starting Department</label>
                 <Dropdown 
-                  className={`w-full rounded-lg ring-0 border ${!touched?.assigned_user_id && errors?.assigned_user_id ? "border-red-500" : ""}`}
-                  placeholder={`Assign a doctor`}
-                  name="assigned_user_id"
-                  options={staffs || []}
+                  className={`w-full rounded-lg ring-0 border ${!touched?.starting_department_id && errors?.starting_department_id ? "border-red-500" : ""}`}
+                  placeholder={`Starting Department`}
+                  name="starting_department_id"
+                  options={departments || []}
                   optionLabel="name"
                   optionValue="id"
-                  value={formData?.assigned_user_id}
+                  value={formData?.starting_department_id}
                   onChange={handleOnChange}
                   onClick={() => {
                     setTouched((t) => ({
                       ...t,
-                      assigned_user_id: true
+                      starting_department_id: true
                     }))
                   }}
                   required
                 />
-                <p className="text-xs w-full text-red-500">{!touched?.assigned_user_id && errors?.assigned_user_id ? "This field is required." : ""}</p>
+                <p className="text-xs w-full text-red-500">{!touched?.starting_department_id && errors?.starting_department_id ? "This field is required." : ""}</p>
               </div>
 
               <div className="flex flex-col lg:col-span-8">
