@@ -355,7 +355,7 @@ const Queue = ({ profile }) => {
                       </div>
                     </div>
                   </div>
-                  <div>
+                  <div className="w-full md:w-1/2 p-4 border border-gray-200 rounded-lg bg-gray-50">
                     <div className="">
                       <h2 className="text-xl font-semibold text-gray-700">Where to go next?</h2>
                       <p className="text-gray-500">Select the patient's next destination</p>

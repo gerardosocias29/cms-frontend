@@ -52,7 +52,7 @@ export default function PatientTriage() {
     setSelectedPatient(data);
     setShowNewPatientForm(true);
   }
-  
+
   // FIX: Accept rowData as the parameter
   const customActions = (rowData) => {
     return <div className='flex justify-end'>
@@ -154,23 +154,22 @@ export default function PatientTriage() {
       // Basic ESC/POS Commands (Adjust as needed for your printer)
       const encoder = new TextEncoder();
       const initPrinter = new Uint8Array([0x1B, 0x40]); // ESC @ - Initialize printer
-      const setLargeFont = new Uint8Array([0x1D, 0x21, 0x11]); // GS ! 0x33 = Quad size (double width & height x2)
       const setCenter = new Uint8Array([0x1B, 0x61, 0x01]); // ESC a 1 - Center align
-      // Ensure only the queue number is printed
+      const setLargeFont = new Uint8Array([0x1D, 0x21, 0x11]); // GS ! 0x33 = Quad size (double width & height x2)
       const formattedQueueNum = queueNum.toString();
       const printText = encoder.encode(`\n\n${formattedQueueNum}\n`);
       const setNormalFont = new Uint8Array([0x1B, 0x21, 0x00]); // ESC ! 0 - Normal font
-      const printTimestamp = encoder.encode(`${new Date().toLocaleString()}\n\n`);
+      const printTimestamp = encoder.encode(`${new Date().toLocaleString()}\n\n\n`);
       const cutPaper = new Uint8Array([0x1D, 0x56, 0x42, 0x00]); // GS V B 0 - Full cut (or 0x01 for partial)
 
       const dataToSend = new Uint8Array([
-          ...initPrinter,
-          ...setCenter,
-          ...setLargeFont,
-          ...printText,
-          ...setNormalFont,
-          ...printTimestamp,
-          ...cutPaper
+        ...initPrinter,
+        ...setCenter,
+        ...setLargeFont,
+        ...printText,
+        ...setNormalFont,
+        ...printTimestamp,
+        ...cutPaper
       ]);
 
       await deviceToPrint.transferOut(endpointNumber, dataToSend);
