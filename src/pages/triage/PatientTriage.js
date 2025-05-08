@@ -361,8 +361,8 @@ export default function PatientTriage() {
                 {status}
               </span>
             }},
-            {field: 'assigned_to.name', header: 'Assigned To'},
-            {field: 'assigned_to.department.name', header: 'Department'},
+            // {field: 'assigned_to.name', header: 'Assigned To'},
+            {field: 'next_department.name', header: 'Department'},
           ]}
           actions={true}
           customActions={customActions}

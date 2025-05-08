@@ -29,7 +29,7 @@ export default function PatientTriageModal({
     'bloodpressure',
     'heartrate',
     'temperature',
-    'assigned_user_id',
+    'starting_department_id',
   ];
 
   const [touched, setTouched] = useState();
