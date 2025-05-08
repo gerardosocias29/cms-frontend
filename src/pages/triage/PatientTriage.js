@@ -25,8 +25,6 @@ export default function PatientTriage() {
   const [printErrorMsg, setPrintErrorMsg] = useState(''); // Store error message for dialog
   const toast = useRef(null); // Ref for Toast component
 
-  const [staffs, setStaffs] = useState();
-
   const [filters, setFilters] = useState({
     priority: 'all',
     status: 'all'
@@ -87,15 +85,17 @@ export default function PatientTriage() {
     </div>
   }
 
+  const [departments, setDepartments] = useState();
+
   const getData = async () => {
     try {
-      const [cardTotalsResponse, staffsResponse] = await Promise.all([
+      const [cardTotalsResponse, departmentsResponse] = await Promise.all([
         axiosInstance.get("/patients/card-totals"),
-        axiosInstance.get('/users/get/staff')
+        axiosInstance.get('/departments')
       ]);
 
       setCardTotals(cardTotalsResponse.data);
-      setStaffs(staffsResponse.data)
+      setDepartments(departmentsResponse.data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -218,7 +218,7 @@ export default function PatientTriage() {
         }
     };
     fetchDefault();
-  }, [axiosInstance]) // Add axiosInstance dependency
+  }, [])
 
   // --- Render Print Error Dialog Footer ---
   const printErrorFooter = (
@@ -239,13 +239,13 @@ export default function PatientTriage() {
             <h1 className="text-2xl font-bold text-gray-900">Patient Triage</h1>
             <p className="text-gray-600">Manage incoming patients and assess priority</p>
           </div>
-          <button
+          <Button
+            loading={refreshTable}
             onClick={() => setShowNewPatientForm(true)}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
-          >
-            <FaUserInjured />
-            Add New Patient
-          </button>
+            label="Add New Patient"
+            icon={<FaUserInjured />}
+          />
         </div>
 
         {/* Stats Overview */}
@@ -377,7 +377,7 @@ export default function PatientTriage() {
             }
           }}
           onHide={() => {setShowNewPatientForm(false); setSelectedPatient(null)}}
-          staffs={staffs}
+          departments={departments}
         />
 
         {/* *** ADDED: Print Error Dialog *** */}

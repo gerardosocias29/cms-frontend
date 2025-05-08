@@ -14,7 +14,7 @@ export default function PatientTriageModal({
   onSuccess = () => {},
   data = null,
   header = "Add New Patient",
-  staffs
+  departments
 }) {
   const axiosInstance = useAxios();
   const showToast = useToast();
@@ -77,20 +77,9 @@ export default function PatientTriageModal({
       setIsSubmitting(false);
     })
   }
-
-  const [departments, setDepartments] = useState();
-  const fetchDepartments = async () => {
-    try {
-      const response = await axiosInstance.get('/departments');
-      setDepartments(response.data);
-    } catch (error) {
-      console.error('Error fetching departments:', error);
-    }
-  };
    
   useEffect( () => {
     if(visible){
-      fetchDepartments();
 
       const initialTouchedState = Object.fromEntries(fields.map(field => [field, false]));
       setTouched(initialTouchedState);
