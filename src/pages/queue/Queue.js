@@ -66,49 +66,49 @@ const Queue = ({ profile }) => {
     }
   };
 
-  // Fetch initial queue data
-  useEffect(() => {
-    fetchDepartments();
-    // TODO: Implement real-time updates (Polling or WebSockets)
-
-    if(profile?.department_ids?.length > 0) {
-      console.log("Echo connected:", echo.connector.socket);
-      console.log("Subscribed Channels:", echo.connector.channels);
-
-      let channels = [];
-      profile?.department_ids?.forEach(element => {
-        console.log("Subscribing to channel:", "cms_department_" + element);
-        channels.push({
-          channel: echo.channel("cms_department_" + element),
-          name: "cms_department_" + element
-        });
-      });
-
-      channels.forEach(c => {
-        console.log("Subscribed to channel:", c.name);
-        c.channel.listen(".PatientQueueUpdated", (e) => {
-          console.log("📩 Received (PatientQueueUpdated):", e);
-          fetchPatients();
-        });
-      });
-    
-      return () => {
-        channels.forEach(c => {
-          echo.leaveChannel(c.name)
-        });
-      };
-    } else {
-      console.log("No departments to subscribe to.");
-    }
-  }, []);
 
   // Update header when profile changes
   useEffect(() => {
     if (profile) {
+      fetchDepartments();
+
       setUserDepartments(profile?.all_departments);
       setSelectedDepartment(profile?.all_departments[0]?.id);
 
       fetchPatients(profile?.all_departments[0]?.id || profile?.department_id);
+      // TODO: Implement real-time updates (Polling or WebSockets)
+
+      if(profile?.department_ids?.length > 0) {
+        console.log("Echo connected:", echo.connector.socket);
+        console.log("Subscribed Channels:", echo.connector.channels);
+
+        let channels = [];
+        profile?.department_ids?.forEach(element => {
+          console.log("Subscribing to channel:", "cms_department_" + element);
+          channels.push({
+            channel: echo.channel("cms_department_" + element),
+            name: "cms_department_" + element
+          });
+        });
+
+        channels.forEach(c => {
+          console.log("Subscribed to channel:", c.name);
+          c.channel.listen(".PatientQueueUpdated", (e) => {
+            console.log("📩 Received (PatientQueueUpdated):", e);
+            fetchPatients();
+          });
+        });
+      
+        return () => {
+          channels.forEach(c => {
+            echo.leaveChannel(c.name)
+          });
+        };
+      } else {
+        console.log("No departments to subscribe to.");
+      }
+      
+      
     }
   }, [profile]);
 
