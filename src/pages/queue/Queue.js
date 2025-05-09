@@ -66,6 +66,15 @@ const Queue = ({ profile }) => {
     }
   };
 
+  const [fetchDepartmentId, setFetchDepartmentId] = useState();
+  useEffect(() => {
+    console.log("fetchDepartmentId", fetchDepartmentId, selectedDepartment);
+    if(fetchDepartmentId && fetchDepartmentId == selectedDepartment ){
+      console.log("fetchPatients", fetchDepartmentId);
+      fetchPatients(fetchDepartmentId);
+      setFetchDepartmentId(null);
+    }
+  }, [fetchDepartmentId]);
 
   // Update header when profile changes
   useEffect(() => {
@@ -95,10 +104,7 @@ const Queue = ({ profile }) => {
           console.log("Subscribed to channel:", c.name);
           c.channel.listen(".PatientQueueUpdated", (e) => {
             console.log("📩 Received (PatientQueueUpdated):", e);
-            console.log("selectedDepartment::", selectedDepartment, e.nextDepartmentId);
-            if(selectedDepartment == e.nextDepartmentId){
-              fetchPatients(selectedDepartment);
-            }
+            setFetchDepartmentId(e.nextDepartmentId);
           });
         });
       
