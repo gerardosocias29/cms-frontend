@@ -72,6 +72,9 @@ const Queue = ({ profile }) => {
     // TODO: Implement real-time updates (Polling or WebSockets)
 
     if(profile?.department_ids?.length > 0) {
+      console.log("Echo connected:", echo.connector.socket);
+      console.log("Subscribed Channels:", echo.connector.channels);
+
       let channels = [];
       profile?.department_ids?.forEach(element => {
         console.log("Subscribing to channel:", "cms_department_" + element);
@@ -94,6 +97,8 @@ const Queue = ({ profile }) => {
           echo.leaveChannel(c.name)
         });
       };
+    } else {
+      console.log("No departments to subscribe to.");
     }
   }, []);
 
