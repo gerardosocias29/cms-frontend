@@ -95,9 +95,7 @@ const Queue = ({ profile }) => {
           console.log("Subscribed to channel:", c.name);
           c.channel.listen(".PatientQueueUpdated", (e) => {
             console.log("📩 Received (PatientQueueUpdated):", e);
-            if(selectedDepartment == e.nextDepartmentId){
-              fetchPatients(e.nextDepartmentId);
-            }
+            fetchPatients(e.nextDepartmentId);
           });
         });
       
