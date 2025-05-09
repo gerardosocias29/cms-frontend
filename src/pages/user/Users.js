@@ -229,7 +229,7 @@ export default function Users({axiosInstance}) {
                 <div className="flex flex-wrap gap-1">
                   {rowData.all_departments.map((ud, index) => (
                     <span key={index} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                      {ud.department.name}
+                      {ud.name}
                     </span>
                   ))}
                 </div>
