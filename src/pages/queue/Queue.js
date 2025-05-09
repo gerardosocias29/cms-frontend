@@ -289,6 +289,10 @@ const Queue = ({ profile }) => {
               setSelectedDepartment(e.value);
               fetchPatients(e.value);
               setCurrentPatient(null);
+              setQueueData({
+                department: profile?.department,
+                patients: [],
+              });
             }}
           />
         </div>
