@@ -74,6 +74,7 @@ const Queue = ({ profile }) => {
     if(profile?.department_ids?.length > 1) {
       let channels = [];
       profile?.department_ids?.forEach(element => {
+        console.log("Subscribing to channel:", "cms_department_" + element);
         channels.push({
           channel: echo.channel("cms_department_" + element),
           name: "cms_department_" + element
@@ -81,6 +82,7 @@ const Queue = ({ profile }) => {
       });
 
       channels.forEach(c => {
+        console.log("Subscribed to channel:", c.name);
         c.channel.listen(".PatientQueueUpdated", (e) => {
           console.log("📩 Received (PatientQueueUpdated):", e);
           fetchPatients();
