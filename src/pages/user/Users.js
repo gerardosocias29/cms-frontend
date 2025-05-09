@@ -222,12 +222,12 @@ export default function Users({axiosInstance}) {
               {data == 2 ? "ADMIN" : data == 3 ? "STAFF" : "NO ROLE"}
             </span>
           }},
-          {field: 'department_specialization.department.name', header: 'Departments', hasTemplate: true, template: (_, rowData) => {
+          {field: '', header: 'Departments', hasTemplate: true, template: (_, rowData) => {
             // Check if user has multiple departments
-            if (rowData.user_departments && rowData.user_departments.length > 0) {
+            if (rowData.all_departments && rowData.all_departments.length > 0) {
               return (
                 <div className="flex flex-wrap gap-1">
-                  {rowData.user_departments.map((ud, index) => (
+                  {rowData.all_departments.map((ud, index) => (
                     <span key={index} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
                       {ud.department.name}
                     </span>
@@ -235,8 +235,7 @@ export default function Users({axiosInstance}) {
                 </div>
               );
             }
-            // Fallback to the old way if user_departments is not available
-            return rowData.department_specialization?.department?.name || 'N/A';
+            return rowData?.department?.name || 'N/A';
           }},
           {field: 'deleted_at', header: 'Status', hasTemplate: true, template: (data, rowData) => {
             return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(data)}`}>
