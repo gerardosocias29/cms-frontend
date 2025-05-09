@@ -157,22 +157,21 @@ export default function PatientTriage() {
       const setCenter = new Uint8Array([0x1B, 0x61, 0x01]); // ESC a 1 - Center align
       const setLargeFont = new Uint8Array([0x1D, 0x21, 0x11]); // GS ! 0x33 = Quad size (double width & height x2)
       const formattedQueueNum = queueNum.toString();
-      const printText = encoder.encode(`\n\n${formattedQueueNum}\n`);
+      const printText = encoder.encode(`${formattedQueueNum}`);
       const setNormalFont = new Uint8Array([0x1B, 0x21, 0x00]); // ESC ! 0 - Normal font
       const printTimestamp = encoder.encode(`${new Date().toLocaleString()}\n\n\n`);
       const cutPaper = new Uint8Array([0x1D, 0x56, 0x42, 0x00]); // GS V B 0 - Full cut (or 0x01 for partial)
 
-      const dataToSend = new Uint8Array([
-        ...initPrinter,
-        ...setCenter,
-        ...setLargeFont,
-        ...printText,
-        ...setNormalFont,
-        ...printTimestamp,
-        ...cutPaper
-      ]);
+      await deviceToPrint.transferOut(endpointNumber, new Uint8Array([...initPrinter, ...setCenter]));
+      const topSpacing = encoder.encode("\n\n");
+      await deviceToPrint.transferOut(endpointNumber, topSpacing);
+      await deviceToPrint.transferOut(endpointNumber, new Uint8Array([...setLargeFont, ...printText]));
+      const middleSpacing = encoder.encode("\n");
+      await deviceToPrint.transferOut(endpointNumber, middleSpacing);
+      await deviceToPrint.transferOut(endpointNumber, new Uint8Array([...setNormalFont, ...printTimestamp]));
+      const bottomSpacing = encoder.encode("\n\n");
+      await deviceToPrint.transferOut(endpointNumber, bottomSpacing, ...cutPaper);
 
-      await deviceToPrint.transferOut(endpointNumber, dataToSend);
       toast.current?.show({ severity: 'success', summary: 'Printed', detail: `${queueNum} sent successfully.`, life: 3000 });
 
       await deviceToPrint.releaseInterface(interfaceNumber);
@@ -341,7 +340,7 @@ export default function PatientTriage() {
           selectionMode=""
           api={'/patients'}
           columns={[
-            {field: 'priority_number', header: 'ID', hasTemplate: true, template: (data, rowData) => {
+            {field: 'priority_number', header: 'ID', hasTemplate: true, template: (_, rowData) => {
               return <div className="flex flex-col items-start">
                 <div>{rowData.priority}{leadingZero(rowData.priority_number || 0)}</div>
               </div>

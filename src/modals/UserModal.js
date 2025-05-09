@@ -4,6 +4,7 @@ import { useToast } from "../contexts/ToastContext";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import { Dropdown } from "primereact/dropdown";
+import { MultiSelect } from "primereact/multiselect";
 import { useEffect, useState } from "react";
 import { Button } from "primereact/button";
 
@@ -26,7 +27,7 @@ export default function UserModal({
     password: false,
     password_confirmation: false,
     role_id: false,
-    department_id: false,
+    department_ids: false,
     specialization_id: false,
   });
 
@@ -36,7 +37,7 @@ export default function UserModal({
     'password': '',
     'password_confirmation': '',
     'role_id': null,
-    'department_id': null,
+    'department_ids': [],
     'specialization_id': null,
   }
   const [formData, setFormData] = useState(newData);
@@ -48,10 +49,21 @@ export default function UserModal({
 
   const handleOnChange = (e) => {
     const {name, value} = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+
+    // Special handling for department_ids to reset specialization_id when departments change
+    if (name === 'department_ids') {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+        // Reset specialization if departments change
+        specialization_id: value && value.length > 0 ? prev.specialization_id : null
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   }
 
   const handleFormSubmit = (e) => {
@@ -87,10 +99,18 @@ export default function UserModal({
 
   useEffect(() => {
     if(data){
+      // For existing users, we need to handle the department_ids differently
+      // If the backend returns user_departments, use that, otherwise use the single department
+      const departmentIds = data.user_departments
+        ? data.user_departments.map(ud => ud.department_id)
+        : data?.department_specialization?.department_id
+          ? [data.department_specialization.department_id]
+          : [];
+
       setFormData((prev) => ({
         ...prev,
         ...data,
-        department_id: data?.department_specialization.department_id,
+        department_ids: departmentIds,
         specialization_id: data?.department_specialization_id || null,
         role_id: data?.role_id,
       }));
@@ -111,7 +131,7 @@ export default function UserModal({
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col lg:col-span-2">
               <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Full Name</label>
-              <InputText 
+              <InputText
                 type="text"
                 name="name"
                 autoComplete=""
@@ -131,7 +151,7 @@ export default function UserModal({
             </div>
             <div className="flex flex-col">
               <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Email</label>
-              <InputText 
+              <InputText
                 type="email"
                 name="email"
                 autoComplete="new-email"
@@ -151,7 +171,7 @@ export default function UserModal({
             </div>
             <div className="flex flex-col">
               <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Role</label>
-              <Dropdown 
+              <Dropdown
                 className={`w-full rounded-lg ring-0 border ${!touched?.role_id && errors?.role_id ? "border-red-500" : ""}`}
                 placeholder="Role Name"
                 name="role_id"
@@ -172,10 +192,10 @@ export default function UserModal({
               />
               <p className="text-xs w-full text-red-500">{!touched?.role_id && errors?.role_id ? "This field is required." : ""}</p>
             </div>
-            
+
             <div className="flex flex-col">
               <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Password</label>
-              <Password 
+              <Password
                 type="password"
                 name="password"
                 autoComplete="new-password"
@@ -183,7 +203,7 @@ export default function UserModal({
                 className="w-full flex flex-col"
                 placeholder="Password"
                 inputClassName={`w-full rounded-lg ring-0 px-3 py-2 border pr-10  ${!touched?.password && errors?.password ? "border-red-500" : ""}`}
-                feedback={false} 
+                feedback={false}
                 toggleMask
                 pt={{
                   root: {className: 'w-full'}
@@ -202,7 +222,7 @@ export default function UserModal({
                   return <p key={i} className="text-xs w-full text-red-500">{d}</p>
                 })
               }
-               
+
             </div>
             <div className="flex flex-col">
               <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Confirm Password</label>
@@ -214,7 +234,7 @@ export default function UserModal({
                 className="w-full flex flex-col"
                 placeholder="Confirm Password"
                 inputClassName="w-full rounded-lg ring-0 px-3 py-2 border pr-10"
-                feedback={false} 
+                feedback={false}
                 toggleMask
                 pt={{
                   root: {className: 'w-full'}
@@ -225,34 +245,37 @@ export default function UserModal({
             </div>
             {formData.role_id == 3 ?
               <>
-                <div className="flex flex-col">
-                  <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Department</label>
-                  <Dropdown 
-                    className={`w-full rounded-lg ring-0 border ${!touched?.department_id && errors?.department_id ? "border-red-500" : ""}`}
-                    placeholder="Department"
-                    name="department_id"
+                <div className="flex flex-col col-span-2">
+                  <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Departments</label>
+                  <MultiSelect
+                    className={`w-full rounded-lg ring-0 border ${!touched?.department_ids && errors?.department_ids ? "border-red-500" : ""}`}
+                    placeholder="Select Departments"
+                    name="department_ids"
                     options={departments}
                     optionLabel="name"
                     optionValue="id"
-                    value={formData.department_id}
+                    value={formData.department_ids}
                     onChange={handleOnChange}
                     onClick={() => {
                       setTouched((t) => ({
                         ...t,
-                        department_id: true
+                        department_ids: true
                       }))
                     }}
                     required
+                    display="chip"
                   />
-                  <p className="text-xs w-full text-red-500">{!touched?.department_id && errors?.department_id ? "This field is required." : ""}</p>
+                  <p className="text-xs w-full text-red-500">{!touched?.department_ids && errors?.department_ids ? "This field is required." : ""}</p>
                 </div>
-                <div className="flex flex-col">
+                {/* <div className="flex flex-col">
                   <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Specialization</label>
-                  <Dropdown 
+                  <Dropdown
                     className={`w-full rounded-lg ring-0 border ${!touched?.specialization_id && errors?.specialization_id ? "border-red-500" : ""}`}
                     placeholder="Specialization"
                     name="specialization_id"
-                    options={departments && departments.find((d) => d.id === formData.department_id)?.specializations}
+                    options={departments && formData.department_ids && formData.department_ids.length > 0
+                      ? departments.find((d) => d.id === formData.department_ids[0])?.specializations
+                      : []}
                     optionLabel="name"
                     optionValue="id"
                     value={formData.specialization_id}
@@ -266,13 +289,18 @@ export default function UserModal({
                     required
                   />
                   <p className="text-xs w-full text-red-500">{!touched?.specialization_id && errors?.specialization_id ? "This field is required." : ""}</p>
-                </div>
+                  {formData.department_ids && formData.department_ids.length > 1 && (
+                    <p className="text-xs text-orange-500 mt-1">
+                      Note: Specialization applies to the first selected department only.
+                    </p>
+                  )}
+                </div> */}
               </> : null
             }
-            
+
 
             <div className="lg:col-span-2 flex flex-col justify-end">
-              <Button 
+              <Button
                 type="submit"
                 label={`${data != null ? 'Update User' : 'Create User'}`}
                 className="px-3 py-2 w-full rounded-lg font-bold bg-[#030DD8] text-white"

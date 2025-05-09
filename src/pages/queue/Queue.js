@@ -4,6 +4,8 @@ import { useAxios } from "../../contexts/AxiosContext"; // Import the useAxios h
 import echo from "../../services/echo";
 import { useToast } from "../../contexts/ToastContext";
 import leadingZero from "../../utils/leadingZero";
+import { Dropdown } from "primereact/dropdown";
+import convertUTCToTimeZone from "../../utils/convertUTCToTimeZone";
 // Assuming you have a toast context or similar for user feedback
 // import { useToast } from "../../contexts/ToastContext";
 
@@ -21,6 +23,8 @@ const Queue = ({ profile }) => {
   const [error, setError] = useState(null); // Add error state
   const [isActionLoading, setIsActionLoading] = useState(false); // Loading state for actions
 
+  const [userDepartments, setUserDepartments] = useState([]);
+  const [selectedDepartment, setSelectedDepartment] = useState();
   const [departments, setDepartments] = useState();
   const fetchDepartments = async () => {
     try {
@@ -31,13 +35,13 @@ const Queue = ({ profile }) => {
     }
   };
 
-  const fetchPatients = async () => {
+  const fetchPatients = async (department_id = null) => {
     // setIsLoading(true);
     setError(null);
     try {
-      // Use the axiosInstance from the context
-      // The base URL should be configured in AxiosContext
-      const response = await axiosInstance.get("/patients/queue");
+      const params = department_id ? `?department_id=${department_id}` : '';
+
+      const response = await axiosInstance.get(`/patients/queue${params}`);
       setQueueData((prev) => ({
         ...prev,
         patients: response.data,
@@ -64,40 +68,40 @@ const Queue = ({ profile }) => {
 
   // Fetch initial queue data
   useEffect(() => {
-    fetchPatients();
     fetchDepartments();
     // TODO: Implement real-time updates (Polling or WebSockets)
 
-    if(profile?.department_id != null) {
+    if(profile?.department_ids?.length > 1) {
+      let channels = [];
+      profile?.department_ids?.forEach(element => {
+        channels.push({
+          channel: echo.channel("cms_department_" + element),
+          name: "cms_department_" + element
+        });
+      });
 
-      console.log("cms_department_", profile?.department_id);
-
-      console.log("Echo connected:", echo.connector.socket);
-      console.log("Subscribed Channels:", echo.connector.channels);
-
-      const channel = echo.channel("cms_department_" + profile?.department_id);
-    
-      channel.listen(".PatientQueueUpdated", (e) => {
-        console.log("📩 Received (PatientQueueUpdated):", e);
-        fetchPatients();
+      channels.forEach(c => {
+        c.channel.listen(".PatientQueueUpdated", (e) => {
+          console.log("📩 Received (PatientQueueUpdated):", e);
+          fetchPatients();
+        });
       });
     
       return () => {
-        echo.leaveChannel("cms_department_" + profile?.department_id);
+        channels.forEach(c => {
+          echo.leaveChannel(c.name)
+        });
       };
     }
   }, []);
 
   // Update header when profile changes
   useEffect(() => {
-    if (profile?.department_specialization) {
-        setQueueData(prev => ({
-            ...prev,
-            department_specialization: {
-              department: { name: profile.department_specialization.department.name },
-              name: profile.department_specialization.name
-            }
-        }));
+    if (profile) {
+      setUserDepartments(profile?.all_departments);
+      setSelectedDepartment(profile?.all_departments[0]?.id);
+
+      fetchPatients(profile?.all_departments[0]?.id || profile?.department_id);
     }
   }, [profile]);
 
@@ -272,10 +276,21 @@ const Queue = ({ profile }) => {
     <div className="w-full">
       {/* Header */}
       <div className="bg-white rounded-t-2xl">
-        <div className="bg-blue-600 text-white p-4 rounded-t-2xl">
-          <h1 className="text-lg font-bold text-center">
-            {profile?.department?.name}
-          </h1>
+        <div className="bg-blue-600 text-white p-4 rounded-t-2xl flex items-center justify-center">
+
+          <Dropdown 
+            className="w-1/3"
+            placeholder="Select Department"
+            options={userDepartments}
+            optionLabel="name"
+            optionValue="id"
+            value={selectedDepartment}
+            onChange={(e) => {
+              setSelectedDepartment(e.value);
+              fetchPatients(e.value);
+              setCurrentPatient(null);
+            }}
+          />
         </div>
       </div>
 
@@ -338,20 +353,8 @@ const Queue = ({ profile }) => {
                         <p className="text-gray-800">{currentPatient.name || 'N/A'}</p>
                       </div>
                       <div>
-                        <p className="font-medium text-gray-600">Symptoms:</p>
-                        <p className="text-gray-800">{currentPatient.symptoms || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-600">Blood Pressure:</p>
-                        <p className="text-gray-800">{currentPatient.bloodpressure || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-600">Heart Rate:</p>
-                        <p className="text-gray-800">{currentPatient.heartrate ? `${currentPatient.heartrate} BPM` : 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-600">Temperature:</p>
-                        <p className="text-gray-800">{currentPatient.temperature ? `${currentPatient.temperature} °C` : 'N/A'}</p>
+                        <p className="font-medium text-gray-600">Birthday:</p>
+                        <p className="text-gray-800">{currentPatient.birthday ? convertUTCToTimeZone(currentPatient.birthday, "MMM DD, YYYY") : 'N/A'}</p>
                       </div>
                     </div>
                   </div>

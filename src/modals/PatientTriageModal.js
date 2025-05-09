@@ -24,11 +24,6 @@ export default function PatientTriageModal({
     'name',
     'birthday',
     'priority',
-    'address',
-    'symptoms',
-    'bloodpressure',
-    'heartrate',
-    'temperature',
     'starting_department_id',
   ];
 
@@ -129,7 +124,7 @@ export default function PatientTriageModal({
                 <p className="text-xs w-full text-red-500">{!touched?.name && errors?.name ? "This field is required." : ""}</p>
               </div>
 
-              <div className="flex flex-col lg:col-span-2">
+              <div className="flex flex-col lg:col-span-4">
                 <label htmlFor="buttondisplay" className="text-xs text-gray-500 uppercase font-medium tracking-wide">Birthday</label>
                 <Calendar 
                   placeholder="MM/DD/YYYY"
@@ -150,7 +145,7 @@ export default function PatientTriageModal({
                 <p className="text-xs w-full text-red-500">{!touched?.birthday && errors?.birthday ? "This field is required." : ""}</p>
               </div>
 
-              <div className="flex flex-col lg:col-span-2">
+              <div className="flex flex-col lg:col-span-4">
                 <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Priority</label>
                 <Dropdown 
                   className={`w-full rounded-lg ring-0 border ${!touched?.priority && errors?.priority ? "border-red-500" : ""}`}
@@ -175,7 +170,7 @@ export default function PatientTriageModal({
                 <p className="text-xs w-full text-red-500">{!touched?.priority && errors?.priority ? "This field is required." : ""}</p>
               </div>
 
-              <div className="flex flex-col lg:col-span-4">
+              {/* <div className="flex flex-col lg:col-span-4">
                 <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Address</label>
                 <InputText
                   name="address"
@@ -193,7 +188,7 @@ export default function PatientTriageModal({
                   }}
                 />
                 <p className="text-xs w-full text-red-500">{!touched?.address && errors?.address ? "This field is required." : ""}</p>
-              </div>
+              </div> */}
 
               <div className="flex flex-col lg:col-span-4">
                 <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Starting Department</label>
@@ -217,7 +212,7 @@ export default function PatientTriageModal({
                 <p className="text-xs w-full text-red-500">{!touched?.starting_department_id && errors?.starting_department_id ? "This field is required." : ""}</p>
               </div>
 
-              <div className="flex flex-col lg:col-span-8">
+              {/* <div className="flex flex-col lg:col-span-8">
                 <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Symptoms</label>
                 <InputTextarea
                   name="symptoms"
@@ -299,7 +294,7 @@ export default function PatientTriageModal({
                   }}
                 />
                 <p className="text-xs w-full text-red-500">{!touched?.temperature && errors?.temperature ? "This field is required." : ""}</p>
-              </div>
+              </div> */}
               
               <div className="lg:col-span-8 flex flex-col justify-end">
                 <Button 

@@ -19,8 +19,8 @@ export default function Users({axiosInstance}) {
   });
 
   const getRoleColor = (role) => {
-    return role == '2' 
-      ? 'bg-purple-100 text-purple-800' 
+    return role == '2'
+      ? 'bg-purple-100 text-purple-800'
       : 'bg-blue-100 text-blue-800';
   };
 
@@ -43,7 +43,7 @@ export default function Users({axiosInstance}) {
     active: 0,
     inactive: 0
   });
-  
+
   const getData = async () => {
     try {
       const [departmentsResponse, cardTotalsResponse] = await Promise.all([
@@ -97,7 +97,7 @@ export default function Users({axiosInstance}) {
           <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
           <p className="text-gray-600">Manage staff and admin accounts</p>
         </div>
-        <button 
+        <button
           onClick={() => setShowNewUserForm(true)}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
         >
@@ -204,7 +204,7 @@ export default function Users({axiosInstance}) {
       </div>
 
       {/* Users List */}
-      <LazyTable 
+      <LazyTable
         refreshTable={refreshTable}
         setRefreshTable={setRefreshTable}
         checkbox={false}
@@ -222,7 +222,22 @@ export default function Users({axiosInstance}) {
               {data == 2 ? "ADMIN" : data == 3 ? "STAFF" : "NO ROLE"}
             </span>
           }},
-          {field: 'department_specialization.department.name', header: 'Department'},
+          {field: 'department_specialization.department.name', header: 'Departments', hasTemplate: true, template: (_, rowData) => {
+            // Check if user has multiple departments
+            if (rowData.user_departments && rowData.user_departments.length > 0) {
+              return (
+                <div className="flex flex-wrap gap-1">
+                  {rowData.user_departments.map((ud, index) => (
+                    <span key={index} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                      {ud.department.name}
+                    </span>
+                  ))}
+                </div>
+              );
+            }
+            // Fallback to the old way if user_departments is not available
+            return rowData.department_specialization?.department?.name || 'N/A';
+          }},
           {field: 'deleted_at', header: 'Status', hasTemplate: true, template: (data, rowData) => {
             return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(data)}`}>
               {data == null ? "ACTIVE" : "INACTIVE"}
@@ -236,7 +251,7 @@ export default function Users({axiosInstance}) {
         customActions={customActions}
       />
 
-      <UserModal visible={showNewUserForm} 
+      <UserModal visible={showNewUserForm}
         onSuccess={handleOnSuccess}
         data={selectedUser}
         onHide={() => {
