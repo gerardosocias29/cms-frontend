@@ -71,7 +71,7 @@ const Queue = ({ profile }) => {
     fetchDepartments();
     // TODO: Implement real-time updates (Polling or WebSockets)
 
-    if(profile?.department_ids?.length > 1) {
+    if(profile?.department_ids?.length > 0) {
       let channels = [];
       profile?.department_ids?.forEach(element => {
         console.log("Subscribing to channel:", "cms_department_" + element);
