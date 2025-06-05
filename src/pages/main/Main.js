@@ -6,6 +6,7 @@ import NotFound from "../404/NotFound";
 import Dashboard from "../dashboard/Dashboard";
 import AuthContext from "../../contexts/AuthContext";
 import Queue from "../queue/Queue";
+import QueueHistory from "../queue/QueueHistory";
 import Departments from "../departments/Departments";
 import Users from "../user/Users";
 import PatientTriage from "../triage/PatientTriage";
@@ -38,11 +39,14 @@ const Main = ( {setLoadingState} ) => {
 
     let p;
     switch(page) {
-      case 'dashboard': 
+      case 'dashboard':
         p = <Dashboard axiosInstance={axiosInstance}/>
       break;
       case 'queue':
         p = <Queue profile={profile}/>
+      break;
+      case 'queue-history':
+        p = <QueueHistory profile={profile}/>
       break;
       case 'departments':
         p = <Departments />

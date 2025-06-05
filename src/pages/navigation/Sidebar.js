@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { FaBuilding } from "react-icons/fa6";
-import { FaCogs, FaUsers, FaPrint } from "react-icons/fa"; // Added FaPrint just in case, using FaCogs for now
+import { FaCogs, FaUsers, FaHistory } from "react-icons/fa";
 import { RiFirstAidKitFill, RiStackFill } from "react-icons/ri";
 import { BsBuildingsFill } from "react-icons/bs";
 import { useEffect, useRef, useState } from "react";
@@ -11,14 +11,12 @@ const Sidebar = ({ profile, sidebarOpen, setSidebarOpen }) => {
   const sidebarRef = useRef(null);
 
   const getLinkClass = (page = "") => {
-    if(location.search.includes(`page=${page}`)){
-      // console.log("page", page);
-    }
-    
-    // Use primary color for active link, ensure text contrast
-    return location.search.includes(`page=${page}`)
-      ? "bg-primary text-white dark:bg-primary-dark" // Active state
-      : "hover:bg-gray-200 dark:hover:bg-gray-700" // Hover state
+    const params = new URLSearchParams(location.search);
+    const currentPage = params.get("page");
+  
+    return currentPage === page
+      ? "bg-primary text-white dark:bg-primary-dark" // Active
+      : "hover:bg-gray-200 dark:hover:bg-gray-700"; // Hover
   };
 
   const getIcon = (page) => {
@@ -27,6 +25,7 @@ const Sidebar = ({ profile, sidebarOpen, setSidebarOpen }) => {
       case 'dashboard': icon = <FaBuilding />; break;
       case 'patient-triage': icon = <RiFirstAidKitFill />; break;
       case 'queue': icon = <RiStackFill />; break;
+      case 'queue-history': icon = <FaHistory />; break;
       case 'departments': icon = <BsBuildingsFill />; break;
       case 'users': icon = <FaUsers />; break;
       case 'settings': icon = <FaCogs />; break; // Keep FaCogs for general settings
