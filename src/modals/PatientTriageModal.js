@@ -124,7 +124,7 @@ export default function PatientTriageModal({
                 <p className="text-xs w-full text-red-500">{!touched?.name && errors?.name ? "This field is required." : ""}</p>
               </div>
 
-              <div className="flex flex-col lg:col-span-4">
+              {/* <div className="flex flex-col lg:col-span-4">
                 <label htmlFor="buttondisplay" className="text-xs text-gray-500 uppercase font-medium tracking-wide">Birthday</label>
                 <Calendar 
                   placeholder="MM/DD/YYYY"
@@ -143,7 +143,7 @@ export default function PatientTriageModal({
                   required
                 />
                 <p className="text-xs w-full text-red-500">{!touched?.birthday && errors?.birthday ? "This field is required." : ""}</p>
-              </div>
+              </div> */}
 
               <div className="flex flex-col lg:col-span-4">
                 <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Priority</label>

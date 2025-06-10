@@ -129,7 +129,7 @@ const Queue = ({ profile }) => {
   const startSession = async (patient) => {
     console.log("START SESSION:::::")
     if (isActionLoading) return; // Prevent double clicks
-    if (window.confirm(`Start session for ${patient.priority}${patient.priority_number}?`)) {
+    // if (window.confirm(`Start session for ${patient.priority}${patient.priority_number}?`)) {
       setIsActionLoading(true);
       console.log(`Attempting to start session for patient: ${patient.id}`);
       try {
@@ -167,7 +167,7 @@ const Queue = ({ profile }) => {
       } finally {
         setIsActionLoading(false);
       }
-    }
+    // }
   };
 
   const endSession = async () => {
@@ -366,16 +366,16 @@ const Queue = ({ profile }) => {
               <div className="mt-6 border-t pt-6">
                 <div className="flex flex-col md:flex-row gap-2">
                   <div className="w-full md:w-1/2 p-4 border border-gray-200 rounded-lg bg-gray-50">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-3">Patient Details</h3>
+                    <h3 className="text-xl font-semibold text-gray-700 mb-3">Patient Details</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                       <div>
                         <p className="font-medium text-gray-600">Name:</p>
                         <p className="text-gray-800">{currentPatient.name || 'N/A'}</p>
                       </div>
-                      <div>
+                      {/* <div>
                         <p className="font-medium text-gray-600">Birthday:</p>
                         <p className="text-gray-800">{currentPatient.birthday ? convertUTCToTimeZone(currentPatient.birthday, "MMM DD, YYYY") : 'N/A'}</p>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                   <div className="w-full md:w-1/2 p-4 border border-gray-200 rounded-lg bg-gray-50">
