@@ -211,7 +211,7 @@ const Queue = ({ profile }) => {
 
   const handleNextStep = async () => {
     if (!currentPatient || !selectedStep || isActionLoading) return;
-    if (window.confirm(`Transfer patient ${currentPatient.priority}${currentPatient.priority_number} to ${selectedStep.name}?`)) {
+    // if (window.confirm(`Transfer patient ${currentPatient.priority}${currentPatient.priority_number} to ${selectedStep.name}?`)) {
       setIsActionLoading(true);
       console.log(`Attempting to transfer patient ${currentPatient.id} to ${selectedStep.name}`);
       try {
@@ -241,7 +241,7 @@ const Queue = ({ profile }) => {
       } finally {
         setIsActionLoading(false);
       }
-    }
+    // }
   };
 
   // --- Helper Functions ---
