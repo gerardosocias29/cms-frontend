@@ -165,7 +165,7 @@ const TvDisplayV2 = ({setLoadingState}) => {
           <div className="bg-white rounded-lg border overflow-hidden w-full max-h-[380px] flex items-center justify-center col-span-1">
             { url && (
                 <ReactPlayer
-                  playing
+                  playing={true}
                   width="100%"
                   height="100%"
                   loop={true}
@@ -175,7 +175,7 @@ const TvDisplayV2 = ({setLoadingState}) => {
                 />
               ) 
             }
-            {!url && (
+            { !url && (
               <div className="text-gray-500 text-center min-h-[380px] flex flex-col items-center justify-center bg-gray-100 w-full">
                 <FaVideoSlash className="text-6xl mb-2" />
                 <strong className="text-sm">No Video Available</strong>
