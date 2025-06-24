@@ -11,8 +11,8 @@ const ServicePoint = ({ department, number, type = "regular" }) => {
       <div className="bg-primary text-lg text-white px-3 py-1 text-center font-semibold">
         {department}
       </div>
-      <div className="p-2 text-center">
-        <div className={`text-8xl font-bold ${
+      <div className="p-4 text-center">
+        <div className={`text-7xl font-bold ${
           type === 'P' ? 'text-red-600' :
           type === 'SC' ? 'text-orange-500' :
           'text-primary' // Use primary theme color
@@ -169,7 +169,7 @@ const TvDisplayV2 = ({setLoadingState}) => {
                   width="100%"
                   height="100%"
                   loop={true}
-                  controls={false}
+                  controls={true}
                   style={{ aspectRatio: "16/9" }}
                   url={url}
                 />
