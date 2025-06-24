@@ -152,40 +152,35 @@ const TvDisplayV2 = ({setLoadingState}) => {
   }, []);
 
   return (
-    <div className="min-h-screen p-6" style={{ 
-      backgroundImage: 'url(/slider-home.jpg)',
-      backgroundRepeat: 'no-repeat',
-      backgroundPosition: 'center',
-      backgroundSize: 'cover',
-    }}>
+    <div className="min-h-screen p-6 bg-white">
       {/* Logo and Header */}
       {/* Simplified Header */}
       <div className="w-full flex justify-between items-stretch gap-6 mb-6">
         {/* Text Info Area */}
         {/* make this liquid glass */}
-        <div className="w-full flex justify-between items-center bg-white/20 backdrop-blur-md p-4 rounded-lg shadow-lg min-h-[140px] border border-white/30"> 
+        <div className="w-full flex justify-between items-center p-4 rounded-lg shadow-lg min-h-[140px] border"> 
           {/* Logo */}
           <div className="flex items-center">
             <img src="/logo-png-sm.png" alt="CMS LOGO" className="" />
           </div>
           {/* Use solid background for better contrast */}
           <div className="flex flex-col gap-2 items-center justify-center">
-            <p className="text-sm text-white font-semibold uppercase tracking-wider">
+            <p className="text-sm font-semibold uppercase tracking-wider">
               { date || "-"}
             </p>
             <div className="flex items-center gap-1">
-              <span className="text-3xl text-white font-bold bg-white/20 backdrop-blur-md p-2 rounded-lg shadow-lg border border-white/30">
+              <span className="text-3xl font-bold p-2 rounded-lg shadow-lg border">
                 {time.hour.toString().padStart(2, '0')}
               </span>
-              <span className="text-white font-bold text-3xl">:</span>
-              <span className="text-3xl text-white font-bold bg-white/20 backdrop-blur-md p-2 rounded-lg shadow-lg border border-white/30">
+              <span className="font-bold text-3xl">:</span>
+              <span className="text-3xl font-bold p-2 rounded-lg shadow-lg border">
                 {time.minute.toString().padStart(2, '0')}
               </span>
-              <span className="text-white font-bold text-3xl">:</span>
-              <span className="text-3xl text-white font-bold bg-white/20 backdrop-blur-md p-2 rounded-lg shadow-lg border border-white/30">
+              <span className="font-bold text-3xl">:</span>
+              <span className="text-3xl font-bold p-2 rounded-lg shadow-lg border">
                 {time.second.toString().padStart(2, '0')}
               </span>
-              <span className="text-sm text-white font-semibold bg-white/20 backdrop-blur-md px-2 py-1 rounded-lg shadow-lg border border-white/30 ml-2">
+              <span className="text-sm font-semibold px-2 py-1 rounded-lg shadow-lg border ml-2">
                 {time.ampm}
               </span>
             </div>
