@@ -7,8 +7,8 @@ import { FaVideo, FaVideoSlash } from "react-icons/fa";
 
 const ServicePoint = ({ department, number, type = "regular" }) => {
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden w-full max-h-[180px]">
-      <div className="bg-primary text-lg text-white px-3 py-1 text-center font-semibold">
+    <div className="overflow-hidden w-full max-h-[180px] bg-white/1 backdrop-blur-md rounded-lg shadow-lg border border-white/10">
+      <div className="bg-[#65BDC2] text-lg text-white px-3 py-1 text-center font-semibold">
         {department}
       </div>
       <div className="p-4 text-center">
@@ -19,7 +19,7 @@ const ServicePoint = ({ department, number, type = "regular" }) => {
         }`}>
           {number}
         </div>
-        <div className="text-gray-500 text-sm">Now Serving</div>
+        <div className="text-white uppercase tracking-wider text-xs">Now Serving</div>
       </div>
     </div>
   );
@@ -52,8 +52,15 @@ const TvDisplayV2 = ({setLoadingState}) => {
   
   const [date, setDate] = useState(new Date().toLocaleString("en-US", {
     month: "long", day: "numeric", year: "numeric",
-    hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true
+    // hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true
   }));
+
+  const [time, setTime] = useState({
+    hour: new Date().getHours() % 12 || 12,
+    minute: new Date().getMinutes(),
+    second: new Date().getSeconds(),
+    ampm: new Date().getHours() >= 12 ? 'PM' : 'AM'
+  });
 
   const [activeClick, setActiveClick] = useState(false);
   const voices = speechSynthesis.getVoices();
@@ -97,15 +104,27 @@ const TvDisplayV2 = ({setLoadingState}) => {
     // Set initial date
     setDate(new Date().toLocaleString("en-US", {
       month: "long", day: "numeric", year: "numeric",
-      hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true
+      // hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true
     }));
+
+    // Set initial time
+    const now = new Date();
+    setTime({
+      hour: now.getHours() % 12 || 12,
+      minute: now.getMinutes(),
+      second: now.getSeconds(),
+      ampm: now.getHours() >= 12 ? 'PM' : 'AM'
+    });
     
     // Set up interval to update time every second
     const timer = setInterval(() => {
-      setDate(new Date().toLocaleString("en-US", {
-        month: "long", day: "numeric", year: "numeric",
-        hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true
-      }));
+      const now = new Date();
+      setTime({
+        hour: now.getHours() % 12 || 12,
+        minute: now.getMinutes(),
+        second: now.getSeconds(),
+        ampm: now.getHours() >= 12 ? 'PM' : 'AM'
+      });
     }, 1000);
 
     console.log("Echo connected:", echo.connector.socket);
@@ -133,26 +152,43 @@ const TvDisplayV2 = ({setLoadingState}) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen p-6" style={{ 
+      backgroundImage: 'url(/slider-home.jpg)',
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'center',
+      backgroundSize: 'cover',
+    }}>
       {/* Logo and Header */}
       {/* Simplified Header */}
       <div className="w-full flex justify-between items-stretch gap-6 mb-6">
-        {/* Logo/Image Area */}
-        <div className="w-2/3 bg-cover bg-center rounded-lg shadow-md min-h-[140px]"
-          style={{ backgroundImage: 'url(/asianorthopedics_small.jpg)' }} // Keep inline style for background image
-        >
-          {/* Content inside image div removed for cleaner look */}
-        </div>
         {/* Text Info Area */}
-        <div className="w-1/3 flex items-center">
+        {/* make this liquid glass */}
+        <div className="w-full flex justify-between items-center bg-white/20 backdrop-blur-md p-4 rounded-lg shadow-lg min-h-[140px] border border-white/30"> 
+          {/* Logo */}
+          <div className="flex items-center">
+            <img src="/logo-png-sm.png" alt="CMS LOGO" className="" />
+          </div>
           {/* Use solid background for better contrast */}
-          <div className="w-full bg-white p-4 rounded-lg shadow-md min-h-[140px] flex flex-col justify-center">
-            <h1 className="text-2xl font-semibold text-gray-800">Asian Orthopedics</h1>
-            <small className="text-gray-600">Spine and Joints Center</small>
-            {/* Slightly smaller date/time */}
-            <p className="text-xl text-gray-500 mt-2">
+          <div className="flex flex-col gap-2 items-center justify-center">
+            <p className="text-sm text-white font-semibold uppercase tracking-wider">
               { date || "-"}
             </p>
+            <div className="flex items-center gap-1">
+              <span className="text-3xl text-white font-bold bg-white/20 backdrop-blur-md p-2 rounded-lg shadow-lg border border-white/30">
+                {time.hour.toString().padStart(2, '0')}
+              </span>
+              <span className="text-white font-bold text-3xl">:</span>
+              <span className="text-3xl text-white font-bold bg-white/20 backdrop-blur-md p-2 rounded-lg shadow-lg border border-white/30">
+                {time.minute.toString().padStart(2, '0')}
+              </span>
+              <span className="text-white font-bold text-3xl">:</span>
+              <span className="text-3xl text-white font-bold bg-white/20 backdrop-blur-md p-2 rounded-lg shadow-lg border border-white/30">
+                {time.second.toString().padStart(2, '0')}
+              </span>
+              <span className="text-sm text-white font-semibold bg-white/20 backdrop-blur-md px-2 py-1 rounded-lg shadow-lg border border-white/30 ml-2">
+                {time.ampm}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -160,9 +196,9 @@ const TvDisplayV2 = ({setLoadingState}) => {
       {/* Main Content Grid */}
       <div className="w-full mx-auto flex gap-3">
         {/* make this div independent height with other div */}
-        <div className="w-2/5 bg-white rounded-lg shadow-md p-3 h-1/2"> 
+        <div className="w-2/5 p-3 flex gap-3 bg-white/1 backdrop-blur-md rounded-lg shadow-lg border border-white/10"> 
           {/* Ads Video */}
-          <div className="bg-white rounded-lg border overflow-hidden w-full max-h-[380px] flex items-center justify-center col-span-1">
+          <div className="bg-white rounded-lg border overflow-hidden w-full flex items-center justify-center col-span-1">
             { url && (
                 <ReactPlayer
                   playing={true}
@@ -184,7 +220,7 @@ const TvDisplayV2 = ({setLoadingState}) => {
           </div>
         </div>
         {/* Service Points + Ads Video */}
-        <div className="w-3/5 grid grid-cols-4 gap-3">
+        <div className="w-3/5 grid grid-cols-3 gap-3">
           {/* Departments */}
           {departments?.map((station, index) => (
             <ServicePoint
