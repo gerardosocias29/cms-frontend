@@ -11,15 +11,15 @@ const ServicePoint = ({ department, number, type = "regular" }) => {
       <div className="bg-[#65BDC2] text-xl text-white p-3 text-center font-semibold uppercase tracking-wider">
         {department}
       </div>
-      <div className="p-4 min-h-[150px] flex items-center justify-center flex-col text-center ">
-        <div className={`text-8xl font-bold ${
+      <div className="p-4 min-h-[150px] xl:min-h-[250px] flex items-center justify-center flex-col text-center ">
+        <div className={`text-8xl xl:text-10xl font-bold ${
           type === 'P' ? 'text-red-600' :
           type === 'SC' ? 'text-orange-500' :
           'text-primary' // Use primary theme color
         }`}>
           {number}
         </div>
-        <div className="text-gray-600 uppercase tracking-wider text-xs">Now Serving</div>
+        <div className="text-gray-600 uppercase tracking-wider text-xs xl:text-sm">Now Serving</div>
       </div>
     </div>
   );
@@ -191,7 +191,7 @@ const TvDisplayV2 = ({setLoadingState}) => {
       {/* Main Content Grid */}
       <div className="w-full mx-auto flex gap-3">
         {/* make this div independent height with other div */}
-        <div className="w-2/5 p-3 flex gap-3 bg-white/1 backdrop-blur-md rounded-lg shadow-lg border border-white/10 h-[380px]"> 
+        <div className="w-2/5 xl:w-1/3 p-3 flex gap-3 bg-white/1 backdrop-blur-md rounded-lg shadow-lg border border-white/10 h-[380px] xl:h-[700px]"> 
           {/* Ads Video */}
           <div className="bg-white rounded-lg border overflow-hidden w-full flex items-center justify-center col-span-1">
             { url && (
@@ -216,8 +216,8 @@ const TvDisplayV2 = ({setLoadingState}) => {
         </div>
         {/* Service Points + Ads Video */}
         <div className="
-          w-3/5 gap-3
-          grid grid-cols-2 lg:grid-cols-3
+          w-3/5 xl:w-2/3 gap-3
+          grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
         ">
           {/* Departments */}
           {departments?.map((station, index) => (
