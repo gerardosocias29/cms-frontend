@@ -155,7 +155,7 @@ export default function PatientTriage() {
       const encoder = new TextEncoder();
       const initPrinter = new Uint8Array([0x1B, 0x40]); // ESC @ - Initialize printer
       const setCenter = new Uint8Array([0x1B, 0x61, 0x01]); // ESC a 1 - Center align
-      const setLargeFont = new Uint8Array([0x1D, 0x21, 0x11]); // GS ! 0x33 = Quad size (double width & height x2)
+      const setLargeFont = new Uint8Array([0x1D, 0x21, 0x22]); // GS ! 0x33 = Quad size (double width & height x2)
       const formattedQueueNum = queueNum.toString();
       const printText = encoder.encode(`${formattedQueueNum}`);
       const setNormalFont = new Uint8Array([0x1B, 0x21, 0x00]); // ESC ! 0 - Normal font
