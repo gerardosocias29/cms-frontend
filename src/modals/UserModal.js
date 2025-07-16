@@ -107,10 +107,12 @@ export default function UserModal({
           ? [data.department_specialization.department_id]
           : [];
 
+      
+
       setFormData((prev) => ({
         ...prev,
         ...data,
-        department_ids: departmentIds,
+        department_ids: data.department_ids || [],
         specialization_id: data?.department_specialization_id || null,
         role_id: data?.role_id,
       }));
