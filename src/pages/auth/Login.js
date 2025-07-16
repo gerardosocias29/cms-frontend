@@ -55,8 +55,8 @@ const Login = ({ setLoadingState }) => {
   }, [])
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-6 py-12 lg:px-8">
-      <div className="w-[480px] py-12 font-sans bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl shadow-lg transform transition-all duration-300 hover:shadow-xl">
+    <div className="flex min-h-screen items-center justify-center px-6 py-12 lg:px-8">
+      <div className="sm:w-full w-[480px] py-12 font-sans bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl shadow-lg transform transition-all duration-300 hover:shadow-xl">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm flex flex-col items-center gap-2 justify-center">
           <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center shadow-md">
             <svg
@@ -77,7 +77,7 @@ const Login = ({ setLoadingState }) => {
           <h2 className="text-center text-2xl font-semibold leading-9 tracking-tight text-gray-800">Sign in to your account</h2>
         </div>
 
-        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-sm">
+        <div className="mt-4 md:mt-8 md:px-8 px-3">
           <form className="space-y-6" onSubmit={handleFormSubmit}>
             <div>
               <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-700">Email address</label>
