@@ -11,7 +11,7 @@ const ServicePoint = ({ department, number, type = "regular" }) => {
       <div className="bg-[#65BDC2] text-sm text-white p-2 text-center font-semibold uppercase">
         {department}
       </div>
-      <div className="p-4 min-h-[100px] xl:min-h-[150px] flex items-center justify-center flex-col text-center ">
+      <div className="p-4 -mt-6 flex h-full items-center justify-center flex-col text-center ">
         <div className={`text-8xl xl:text-10xl font-bold ${
           type === 'P' ? 'text-red-600' :
           type === 'SC' ? 'text-orange-500' :
@@ -215,19 +215,20 @@ const TvDisplayV2 = ({setLoadingState}) => {
           </div>
         )}
         
-        <div className="
-          w-full lg:w-2/5 gap-3
-          grid xl:grid-cols-2 lg:grid-cols-1 md:grid-cols-3
-        ">
-          {/* Departments */}
-          {departments?.map((station, index) => (
-            <ServicePoint
-              key={index}
-              department={station.name}
-              number={(station?.patient?.priority || "") + leadingZero(station?.patient?.priority_number || 0)}
-              type={station?.patient?.priority}
-            />
-          ))}
+        <div className="w-full lg:w-2/5">
+          <div className="
+            grid xl:grid-cols-2 lg:grid-cols-1 md:grid-cols-3 gap-3
+          ">
+            {/* Departments */}
+            {departments?.map((station, index) => (
+              <ServicePoint
+                key={index}
+                department={station.name}
+                number={(station?.patient?.priority || "") + leadingZero(station?.patient?.priority_number || 0)}
+                type={station?.patient?.priority}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>
