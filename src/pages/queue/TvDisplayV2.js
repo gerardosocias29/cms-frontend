@@ -7,11 +7,11 @@ import { FaVideo, FaVideoSlash } from "react-icons/fa";
 
 const ServicePoint = ({ department, number, type = "regular" }) => {
   return (
-    <div className="overflow-hidden w-full border rounded-lg shadow-lg bg-white">
-      <div className="bg-[#65BDC2] text-xl text-white p-3 text-center font-semibold uppercase tracking-wider">
+    <div className="overflow-hidden w-full border rounded-lg shadow-lg bg-white relative">
+      <div className="bg-[#65BDC2] text-sm text-white p-2 text-center font-semibold uppercase">
         {department}
       </div>
-      <div className="p-4 min-h-[150px] xl:min-h-[250px] flex items-center justify-center flex-col text-center ">
+      <div className="p-4 min-h-[100px] xl:min-h-[150px] flex items-center justify-center flex-col text-center ">
         <div className={`text-8xl xl:text-10xl font-bold ${
           type === 'P' ? 'text-red-600' :
           type === 'SC' ? 'text-orange-500' :
@@ -95,6 +95,14 @@ const TvDisplayV2 = ({setLoadingState}) => {
       };
     }, 1000);
   }
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }).toUpperCase();
+  };
   
   useEffect(() => {
     fetchDepartments();
@@ -152,72 +160,64 @@ const TvDisplayV2 = ({setLoadingState}) => {
   }, []);
 
   return (
-    <div className="min-h-screen p-6 bg-white">
+    <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Logo and Header */}
-      {/* Simplified Header */}
-      <div className="w-full flex justify-between items-stretch gap-6 mb-6">
-        {/* Text Info Area */}
-        {/* make this liquid glass */}
-        <div className="w-full flex justify-between items-center p-4 rounded-lg shadow-lg min-h-[140px] border"> 
-          {/* Logo */}
-          <div className="flex items-center">
-            <img src="/logo-png-sm.png" alt="CMS LOGO" className="" />
-          </div>
-          {/* Use solid background for better contrast */}
-          <div className="flex flex-col gap-2 items-center justify-center">
-            <p className="text-sm font-semibold uppercase tracking-wider">
-              { date || "-"}
-            </p>
-            <div className="flex items-center gap-1">
-              <span className="text-3xl font-bold p-2 rounded-lg shadow-lg border">
-                {time.hour.toString().padStart(2, '0')}
-              </span>
-              <span className="font-bold text-3xl">:</span>
-              <span className="text-3xl font-bold p-2 rounded-lg shadow-lg border">
-                {time.minute.toString().padStart(2, '0')}
-              </span>
-              <span className="font-bold text-3xl">:</span>
-              <span className="text-3xl font-bold p-2 rounded-lg shadow-lg border">
-                {time.second.toString().padStart(2, '0')}
-              </span>
-              <span className="text-sm font-semibold px-2 py-1 rounded-lg shadow-lg border ml-2">
-                {time.ampm}
-              </span>
-            </div>
+      <header className="bg-white shadow-sm px-3 sm:px-6 py-2 sm:py-3 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
+        <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className="text-center sm:text-left">
+            <img src="/logo-png-sm.png" alt="CMS LOGO" className="h-8 sm:h-12 lg:h-16" />
           </div>
         </div>
-      </div>
+        
+        <div className="text-center sm:text-right">
+          <div className="text-xs text-gray-600 font-medium">
+            {formatDate(new Date())}
+          </div>
+          <div className="text-xl sm:text-2xl font-bold text-gray-800 font-mono">
+            <span className="bg-gray-100 px-2 py-1 rounded mr-1">
+              {time.hour.toString().padStart(2, '0')}
+            </span>
+            :
+            <span className="bg-gray-100 px-2 py-1 rounded mx-1">
+              {time.minute.toString().padStart(2, '0')}
+            </span>
+            :
+            <span className="bg-gray-100 px-2 py-1 rounded mx-1">
+              {time.second.toString().padStart(2, '0')}
+            </span>
+            <span className="text-sm ml-2 bg-gray-200 px-2 py-1 rounded">
+              {time.ampm}
+            </span>
+          </div>
+        </div>
+      </header>
 
       {/* Main Content Grid */}
-      <div className="w-full mx-auto flex gap-3">
-        {/* make this div independent height with other div */}
-        <div className="w-2/5 xl:w-1/3 p-3 flex gap-3 bg-white/1 backdrop-blur-md rounded-lg shadow-lg border border-white/10 h-[380px] xl:h-[700px]"> 
-          {/* Ads Video */}
-          <div className="bg-white rounded-lg border overflow-hidden w-full flex items-center justify-center col-span-1">
-            { url && (
-                <ReactPlayer
-                  playing={true}
-                  width="100%"
-                  height="100%"
-                  loop={true}
-                  controls={true}
-                  style={{ aspectRatio: "16/9" }}
-                  url={url}
-                />
-              ) 
-            }
-            { !url && (
-              <div className="text-gray-500 text-center min-h-[380px] flex flex-col items-center justify-center bg-gray-100 w-full">
-                <FaVideoSlash className="text-6xl mb-2" />
-                <strong className="text-sm">No Video Available</strong>
-              </div>
-            )}
+      <div className="flex-1 flex flex-col lg:flex-row gap-2 sm:gap-4 p-2 sm:p-4">
+        {/* Ads Video */}
+        { url && (
+            <ReactPlayer
+              playing={true}
+              width="100%"
+              height="100%"
+              loop={true}
+              controls={true}
+              style={{ aspectRatio: "16/9" }}
+              url={url}
+              className="bg-white rounded-lg border w-full lg:w-3/5 "
+            />
+          ) 
+        }
+        { !url && (
+          <div className="text-gray-500 text-center min-h-[380px] flex flex-col items-center justify-center bg-gray-100 w-full rounded-lg border">
+            <FaVideoSlash className="text-6xl mb-2" />
+            <strong className="text-sm">No Video Available</strong>
           </div>
-        </div>
-        {/* Service Points + Ads Video */}
+        )}
+        
         <div className="
-          w-3/5 xl:w-2/3 gap-3
-          grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
+          w-full lg:w-2/5 gap-3
+          grid xl:grid-cols-2 lg:grid-cols-1 md:grid-cols-3
         ">
           {/* Departments */}
           {departments?.map((station, index) => (
