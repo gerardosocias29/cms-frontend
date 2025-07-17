@@ -8,10 +8,10 @@ import { FaVideo, FaVideoSlash } from "react-icons/fa";
 const ServicePoint = ({ department, number, type = "regular" }) => {
   return (
     <div className="overflow-hidden w-full border rounded-lg shadow-lg bg-white relative">
-      <div className="bg-[#65BDC2] text-sm text-white p-2 text-center font-semibold uppercase">
+      <div className="bg-[#65BDC2] text-xl text-white p-2 text-center font-semibold uppercase">
         {department}
       </div>
-      <div className="p-4 -mt-6 flex h-full items-center justify-center flex-col text-center ">
+      <div className="p-4 flex h-[250px] items-center justify-center flex-col text-center">
         <div className={`text-8xl xl:text-10xl font-bold ${
           type === 'P' ? 'text-red-600' :
           type === 'SC' ? 'text-orange-500' :
@@ -102,6 +102,13 @@ const TvDisplayV2 = ({setLoadingState}) => {
       month: 'long',
       day: 'numeric'
     }).toUpperCase();
+  };
+
+  const breakpointColumnsObj = {
+    default: 3,
+    1100: 2,
+    700: 2,
+    500: 1
   };
   
   useEffect(() => {
@@ -195,7 +202,8 @@ const TvDisplayV2 = ({setLoadingState}) => {
       {/* Main Content Grid */}
       <div className="flex-1 flex flex-col lg:flex-row gap-2 sm:gap-4 p-2 sm:p-4">
         {/* Ads Video */}
-        { url && (
+        <div className="w-full lg:w-1/2 flex items-center justify-center rounded-xl overflow-hidden relative h-1/2">
+          { url && (
             <ReactPlayer
               playing={true}
               width="100%"
@@ -204,20 +212,21 @@ const TvDisplayV2 = ({setLoadingState}) => {
               controls={true}
               style={{ aspectRatio: "16/9" }}
               url={url}
-              className="bg-white rounded-lg border w-full lg:w-3/5 "
             />
-          ) 
-        }
-        { !url && (
-          <div className="text-gray-500 text-center min-h-[380px] flex flex-col items-center justify-center bg-gray-100 w-full rounded-lg border">
-            <FaVideoSlash className="text-6xl mb-2" />
-            <strong className="text-sm">No Video Available</strong>
-          </div>
-        )}
+            ) 
+          }
+          { !url && (
+            <div className="text-gray-500 text-center min-h-[380px] flex flex-col items-center justify-center bg-gray-100 w-full rounded-lg border">
+              <FaVideoSlash className="text-6xl mb-2" />
+              <strong className="text-sm">No Video Available</strong>
+            </div>
+          )}
+        </div>
         
-        <div className="w-full lg:w-2/5">
+        
+        <div className="w-full lg:w-1/2">
           <div className="
-            grid xl:grid-cols-2 lg:grid-cols-1 md:grid-cols-3 gap-3
+            grid xl:grid-cols-3 lg:grid-cols-2 md:grid-cols-3 gap-3
           ">
             {/* Departments */}
             {departments?.map((station, index) => (
