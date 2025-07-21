@@ -15,16 +15,28 @@ const Settings = () => {
 
   // --- Video state (NEW) ---
   const [videoUrl, setVideoUrl] = useState('');
+  const [fileVideoUrl, setFileVideoUrl] = useState('');
   const [videoLoading, setVideoLoading] = useState(false);
+  const [bVideoLoading, setBvideoLoading] = useState(false);
 
   // --- Video: Fetch current URL when tab is opened ---
   useEffect(() => {
     if (tab === 'video') {
       setVideoLoading(true);
+      setBvideoLoading(true);
       axiosInstance.get('/settings/video-url')
-        .then(res => setVideoUrl(res.data?.url || ''))
+        .then(res => {
+          const videoData = res.data;
+          if (videoData && videoData.length > 0) {
+            const fileVideo = videoData.find(v => v.type === 'file');
+            const urlVideo = videoData.find(v => v.type === 'url');
+            setFileVideoUrl(fileVideo ? fileVideo.url : '');
+            setVideoUrl(urlVideo ? urlVideo.url : '');
+          }
+
+        })
         .catch(() => setVideoUrl(''))
-        .finally(() => setVideoLoading(false));
+        .finally(() => { setVideoLoading(false); setBvideoLoading(false); } );
     }
   }, [tab]);
 
@@ -33,12 +45,47 @@ const Settings = () => {
     e.preventDefault();
     setVideoLoading(true);
     try {
-      await axiosInstance.post('/settings/video-url', { url: videoUrl });
+      const response = await axiosInstance.post('/settings/video-file', { url: videoUrl });
       toast.current?.show({ severity: 'success', summary: 'Saved', detail: 'Video URL updated.', life: 2000 });
+      setVideoUrl(response.data.url);
     } catch (err) {
       toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Failed to update video URL.', life: 3000 });
     }
     setVideoLoading(false);
+  };
+
+  const handleVideoFileSave = async (e) => {
+    e.preventDefault();
+    setBvideoLoading(true);
+    const fileInput = e.target.querySelector('input[type="file"]');
+    if (!fileInput.files[0]) {
+      toast.current?.show({ severity: 'warn', summary: 'No File', detail: 'Please select a video file to upload.', life: 2000 });
+      setBvideoLoading(false);
+      return;
+    }
+    const formData = new FormData();
+    formData.append('video', fileInput.files[0]);
+    try {
+      const response = await axiosInstance.post('/settings/video-file', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      toast.current?.show({ severity: 'success', summary: 'Saved', detail: 'Video file uploaded successfully.', life: 2000 });
+      /* 
+        {
+            "url": "\/uploads\/videos\/UjMiE6GV0KR3MkO1GFzIJhuzh0yNtSgSHJqocfQg.mp4",
+            "type": "file",
+            "updated_at": "2025-07-21T15:53:33.000000Z",
+            "created_at": "2025-07-21T15:53:33.000000Z",
+            "id": 10
+        }
+      */
+      setFileVideoUrl(response.data.url);
+    } catch (err) {
+      toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Failed to upload video file.', life: 3000 });
+    }
+    setBvideoLoading(false);
   };
 
   // Function to request printer access
@@ -282,26 +329,48 @@ const Settings = () => {
 
         {/* Video Tab */}
         {tab === 'video' && (
-          <form onSubmit={handleVideoSave} className="space-y-4">
-            <h1 className="text-2xl font-semibold text-gray-800 mb-4">Video Settings</h1>
-            <label className="block font-medium">Video URL</label>
-            <input
-              type="url"
-              className="w-full border rounded px-3 py-2"
-              value={videoUrl}
-              onChange={e => setVideoUrl(e.target.value)}
-              required
-              placeholder="https://example.com/video.mp4"
-              disabled={videoLoading}
-            />
-            <button
-              type="submit"
-              className="bg-primary text-white px-4 py-2 rounded"
-              disabled={videoLoading}
-            >
-              {videoLoading ? "Saving..." : "Save"}
-            </button>
-          </form>
+          <div>
+            <form onSubmit={handleVideoSave} className="space-y-2">
+              <h1 className="text-2xl font-semibold text-gray-800 mb-4">Video Settings</h1>
+              <label className="block font-medium">Top Video URL</label>
+              <input
+                type="url"
+                className="w-full border rounded px-3 py-2"
+                value={videoUrl}
+                onChange={e => setVideoUrl(e.target.value)}
+                required
+                placeholder="https://example.com/video.mp4"
+                disabled={videoLoading}
+              />
+              <button
+                type="submit"
+                className="bg-primary text-white px-4 py-2 rounded"
+                disabled={videoLoading}
+              >
+                {videoLoading ? "Saving..." : "Save"}
+              </button>
+            </form>
+            <form onSubmit={handleVideoFileSave} className="space-y-2 mt-6">
+              <label className="block font-medium">Bottom Video URL</label>
+              <input
+                type='file'
+                accept="video/*"
+                className="w-full border rounded px-3 py-2"
+                // onChange={e => setVideoUrl(e.target.files[0] ? URL.createObjectURL(e.target.files[0]) : '')}
+                required
+                disabled={bVideoLoading}
+              />
+              <p>Current file: <a href={process.env.REACT_APP_API + fileVideoUrl} target="_blank" rel="noopener noreferrer">{fileVideoUrl}</a></p>
+              <button
+                type="submit"
+                className="bg-primary text-white px-4 py-2 rounded"
+                disabled={bVideoLoading}
+              >
+                {bVideoLoading ? "Saving..." : "Save"}
+              </button>
+            </form>
+          </div>
+          
         )}
       </div>
     </>

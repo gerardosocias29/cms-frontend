@@ -3,13 +3,16 @@
 # Script to run the application with environment switching
 
 # Define environment options
+LOCAL_API="http://localhost:9876"
 LOCAL_API_URL="http://localhost:9876/api"
+PROD_API="https://api.dumy.one"
 PROD_API_URL="https://api.dumy.one/api"
 
 # Function to update .env file
 update_env_file() {
   local env_type=$1
   local api_url=$2
+  local api=$3
   
   # Create backup of current .env file
   cp .env .env.backup
@@ -18,12 +21,14 @@ update_env_file() {
   if grep -q "REACT_APP_API_BASE_URL=" .env; then
     # Replace existing line
     sed -i "s|REACT_APP_API_BASE_URL=.*|REACT_APP_API_BASE_URL=$api_url|g" .env
+    sed -i "s|REACT_APP_API=.*|REACT_APP_API=$api|g" .env
   else
     # Add new line if it doesn't exist
     echo "REACT_APP_API_BASE_URL=$api_url" >> .env
+    echo "REACT_APP_API=$api" >> .env
   fi
   
-  echo "Environment switched to $env_type mode. API URL set to $api_url"
+  echo "Environment switched to $env_type mode. API URL set to $api_url and API set to $api."
 }
 
 # Function to display help
@@ -71,9 +76,9 @@ fi
 
 # Update environment file
 if [ "$ENV_MODE" == "local" ]; then
-  update_env_file "local" "$LOCAL_API_URL"
+  update_env_file "local" "$LOCAL_API_URL" "$LOCAL_API"
 elif [ "$ENV_MODE" == "prod" ]; then
-  update_env_file "production" "$PROD_API_URL"
+  update_env_file "production" "$PROD_API_URL" "$PROD_API"
 fi
 
 # Exit if only environment update is requested

@@ -56,7 +56,7 @@ const Login = ({ setLoadingState }) => {
 
   return (
     <div className="flex min-h-screen items-center justify-center px-6 py-12 lg:px-8">
-      <div className="sm:w-full w-[480px] py-12 font-sans bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl shadow-lg transform transition-all duration-300 hover:shadow-xl">
+      <div className="w-full md:w-[480px] py-12 font-sans bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl shadow-lg transform transition-all duration-300 hover:shadow-xl">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm flex flex-col items-center gap-2 justify-center">
           <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center shadow-md">
             <svg
