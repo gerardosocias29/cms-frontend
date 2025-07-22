@@ -98,11 +98,9 @@ const Settings = () => {
           setVideoLoading(false);
           return;
         }
-
         formData.append('video', fileInput.files[0]);
-        payload.video = formData;
-        payload.type = 'file';
-        payload.position = 'top';
+        formData.append('type', videoType);
+        formData.append('position', 'top');
       }
     } else {
       payload = { url: bottomVideoUrl, type: videoType, position: 'bottom' };
@@ -113,9 +111,8 @@ const Settings = () => {
           return;
         }
         formData.append('video', fileInput.files[0]);
-        payload.video = formData;
-        payload.type = 'file';
-        payload.position = 'bottom';
+        formData.append('type', videoType);
+        formData.append('position', 'bottom');
       }
     }
 
