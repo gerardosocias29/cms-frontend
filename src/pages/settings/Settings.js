@@ -101,7 +101,7 @@ const Settings = () => {
     let formData = new FormData();
    
     if(position === 'top') {
-      payload = { url: videoUrl, type: videoType, position: 'top', show: showBottomVideo };
+      payload = { url: videoUrl, type: videoType, position: 'top', show: `${showBottomVideo}` };
       
       if( videoType === 'file') {
         const fileInput = checkFileInput('topVideoFileInput');
@@ -112,10 +112,10 @@ const Settings = () => {
         formData.append('video', fileInput.files[0] || null);
         formData.append('type', videoType);
         formData.append('position', 'top');
-        formData.append('show', showBottomVideo);
+        formData.append('show', `${showBottomVideo}`);
       }
     } else {
-      payload = { url: bottomVideoUrl, type: videoType, position: 'bottom', show: showBottomVideo };
+      payload = { url: bottomVideoUrl, type: videoType, position: 'bottom', show: `${showBottomVideo}` };
       if( videoType === 'file') {
         const fileInput = checkFileInput('bottomVideoFileInput');
         if (!fileInput) {
@@ -125,7 +125,7 @@ const Settings = () => {
         formData.append('video', fileInput.files[0] || null);
         formData.append('type', videoType);
         formData.append('position', 'bottom');
-        formData.append('show', showBottomVideo);
+        formData.append('show', `${showBottomVideo}`);
       }
     }
 
