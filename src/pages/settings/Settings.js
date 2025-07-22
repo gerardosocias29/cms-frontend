@@ -3,7 +3,7 @@ import { useAxios } from '../../contexts/AxiosContext';
 import { Toast } from 'primereact/toast';
 import { Dropdown } from 'primereact/dropdown';
 import { FaImage } from 'react-icons/fa';
-import e from 'cors';
+import { InputSwitch } from 'primereact/inputswitch';
 
 const Settings = () => {
   const axiosInstance = useAxios();
@@ -26,6 +26,8 @@ const Settings = () => {
   const [topFileUrl, setTopFileUrl] = useState('');
   const [bottomVideoType, setBottomVideoType] = useState('url');
   const [bottomVideoUrl, setBottomVideoUrl] = useState('');
+
+  const [showBottomVideo, setShowBottomVideo] = useState(false);
 
   const handleTopVideoFile = (e) => {
   const file = e.target.files[0];
@@ -52,13 +54,22 @@ const Settings = () => {
         .then(res => {
           const videoData = res.data;
           if (videoData && videoData.length > 0) {
-            const fileVideo = videoData.find(v => v.type === 'file');
-            const urlVideo = videoData.find(v => v.type === 'url');
-            setFileVideoUrl(fileVideo ? fileVideo.url : '');
-            setVideoUrl(urlVideo ? urlVideo.url : '');
+            // find position of top and bottom videos
+            const topVideo = videoData.find(v => v.position === 'top');
+            const bottomVideo = videoData.find(v => v.position === 'bottom');
+            setVideoUrl(topVideo ? topVideo.url : '');
+            setBottomVideoUrl(bottomVideo ? bottomVideo.url : '');
 
-            setTopVideoType(urlVideo ? 'url' : 'file');
-            setBottomVideoType(fileVideo ? 'file' : 'url');
+            if(bottomVideo) {
+              setShowBottomVideo((bottomVideo.show == 1) ? true : false);
+            }
+            
+
+            setTopVideoType(topVideo ? topVideo.type : 'url');
+            setBottomVideoType(bottomVideo ? bottomVideo.type : 'url');
+
+            setTopFileUrl(topVideo && topVideo.type === 'file' ? topVideo.url : '');
+            setFileVideoUrl(bottomVideo && bottomVideo.type === 'file' ? bottomVideo.url : '');
           }
 
         })
@@ -90,7 +101,7 @@ const Settings = () => {
     let formData = new FormData();
    
     if(position === 'top') {
-      payload = { url: videoUrl, type: videoType, position: 'top' };
+      payload = { url: videoUrl, type: videoType, position: 'top', show: showBottomVideo };
       
       if( videoType === 'file') {
         const fileInput = checkFileInput('topVideoFileInput');
@@ -98,21 +109,23 @@ const Settings = () => {
           setVideoLoading(false);
           return;
         }
-        formData.append('video', fileInput.files[0]);
+        formData.append('video', fileInput.files[0] || null);
         formData.append('type', videoType);
         formData.append('position', 'top');
+        formData.append('show', showBottomVideo);
       }
     } else {
-      payload = { url: bottomVideoUrl, type: videoType, position: 'bottom' };
+      payload = { url: bottomVideoUrl, type: videoType, position: 'bottom', show: showBottomVideo };
       if( videoType === 'file') {
         const fileInput = checkFileInput('bottomVideoFileInput');
         if (!fileInput) {
           setBvideoLoading(false);
           return;
         }
-        formData.append('video', fileInput.files[0]);
+        formData.append('video', fileInput.files[0] || null);
         formData.append('type', videoType);
         formData.append('position', 'bottom');
+        formData.append('show', showBottomVideo);
       }
     }
 
@@ -145,10 +158,10 @@ const Settings = () => {
 
   const checkFileInput = (id) => {
     const fileInput = document.querySelector(`input#${id}`);
-    if (!fileInput || !fileInput.files[0]) {
-      toast.current?.show({ severity: 'warn', summary: 'No File', detail: 'Please select a video file to upload.', life: 2000 });
-      return false;
-    }
+    // if (!fileInput || !fileInput.files[0]) {
+    //   toast.current?.show({ severity: 'warn', summary: 'No File', detail: 'Please select a video file to upload.', life: 2000 });
+    //   return false;
+    // }
     return fileInput;
   }
 
@@ -421,7 +434,7 @@ const Settings = () => {
                       className="w-full border rounded px-3 py-2"
                       value={videoUrl}
                       onChange={e => setVideoUrl(e.target.value)}
-                      required
+                      // required
                       disabled={videoLoading}
                       placeholder="https://example.com/video.mp4"
                     />
@@ -462,7 +475,10 @@ const Settings = () => {
 
               {/* Bottom Video Section */}
               <form onSubmit={(e) => handleVideoFileSave(e, 'bottom', bottomVideoType)} className="space-y-4">
-                <label className="block font-medium">Bottom Video Type</label>
+                <div className='flex items-center justify-between'>
+                  <label className="block font-medium">Bottom Video Type</label>
+                  <InputSwitch checked={showBottomVideo} onChange={(e) => setShowBottomVideo(e.value)} />
+                </div>
                 <div className='border rounded-lg overflow-hidden'>
                   <Dropdown
                     value={bottomVideoType}
@@ -485,7 +501,7 @@ const Settings = () => {
                       className="w-full border rounded px-3 py-2"
                       value={bottomVideoUrl}
                       onChange={e => setBottomVideoUrl(e.target.value)}
-                      required
+                      // required
                       disabled={bVideoLoading}
                       placeholder="https://example.com/video.mp4"
                     />

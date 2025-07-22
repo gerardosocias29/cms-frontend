@@ -40,16 +40,20 @@ const TvDisplayV2 = ({setLoadingState}) => {
 
   const [videoUrl, setVideoUrl] = useState('');
   const [fileVideoUrl, setFileVideoUrl] = useState('');
+  const [showBottomVideo, setShowBottomVideo] = useState(true);
   const [url, setUrl] = useState();
   const fetchVideoUrl = async () => {
     try {
       const response = await axiosInstance.get('/settings/video-url');
       const videoData = response.data;
       if (videoData && videoData.length > 0) {
-        const fileVideo = videoData.find(v => v.type === 'file');
-        const urlVideo = videoData.find(v => v.type === 'url');
-        setFileVideoUrl(fileVideo ? fileVideo.url : '');
-        setVideoUrl(urlVideo ? urlVideo.url : '');
+        const topVideo = videoData.find(v => v.position === 'top');
+        const bottomVideo = videoData.find(v => v.position === 'bottom');
+        setVideoUrl(topVideo ? topVideo.url : '');
+        setFileVideoUrl(bottomVideo ? bottomVideo.url : '');
+        if(bottomVideo) {
+          setShowBottomVideo((bottomVideo.show === 1) ? true : false);
+        }
       }
     } catch (error) {
       console.error('Error fetching video URL:', error);
@@ -228,27 +232,32 @@ const TvDisplayV2 = ({setLoadingState}) => {
               </div>
             )}
           </div>
-          <div className="w-full h-1/2 rounded-lg overflow-hidden bg-black">
-            { fileVideoUrl && (
-              <ReactPlayer
-                playing={true}
-                width="100%"
-                height="100%"
-                loop={true}
-                controls={true}
-                style={{ aspectRatio: "16/9" }}
-                url={`${process.env.REACT_APP_API + fileVideoUrl}`}
-                muted={true}
-              />
-              ) 
-            }
-            { !fileVideoUrl && (
-              <div className="text-gray-500 text-center min-h-[380px] flex flex-col items-center justify-center bg-gray-100 w-full rounded-lg border">
-                <FaVideoSlash className="text-6xl mb-2" />
-                <strong className="text-sm">No Video Available</strong>
+          {
+            (showBottomVideo) && (
+              <div className="w-full h-1/2 rounded-lg overflow-hidden bg-black">
+                { fileVideoUrl && (
+                  <ReactPlayer
+                    playing={true}
+                    width="100%"
+                    height="100%"
+                    loop={true}
+                    controls={true}
+                    style={{ aspectRatio: "16/9" }}
+                    url={`${process.env.REACT_APP_API + fileVideoUrl}`}
+                    muted={true}
+                  />
+                  ) 
+                }
+                { !fileVideoUrl && (
+                  <div className="text-gray-500 text-center min-h-[380px] flex flex-col items-center justify-center bg-gray-100 w-full rounded-lg border">
+                    <FaVideoSlash className="text-6xl mb-2" />
+                    <strong className="text-sm">No Video Available</strong>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            )
+          }
+          
         </div>
         <div className="w-full lg:w-3/5 ">
           <div className="
