@@ -208,7 +208,7 @@ const TvDisplayV2 = ({setLoadingState}) => {
       {/* Main Content Grid */}
       <div className="flex flex-col lg:flex-row gap-2 sm:gap-4 h-screen pt-[6.5rem] px-4 pb-4 overflow-auto">
         <div className="w-full lg:w-2/5 space-y-2">
-          <div className="w-full h-1/2 rounded-lg overflow-hidden">
+          <div className="w-full h-1/2 rounded-lg overflow-hidden bg-black">
             { videoUrl && (
               <ReactPlayer
                 playing={true}
@@ -228,7 +228,7 @@ const TvDisplayV2 = ({setLoadingState}) => {
               </div>
             )}
           </div>
-          <div className="w-full h-1/2 rounded-lg overflow-hidden">
+          <div className="w-full h-1/2 rounded-lg overflow-hidden bg-black">
             { fileVideoUrl && (
               <ReactPlayer
                 playing={true}
