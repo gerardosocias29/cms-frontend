@@ -175,7 +175,7 @@ const TvDisplayV2 = ({setLoadingState}) => {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col relative overflow-hidden">
       {/* Logo and Header */}
-      <header className="absolute w-full bg-white shadow-sm px-3 sm:px-6 py-2 sm:py-3 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
+      <header className="absolute z-[99] w-full bg-white shadow-sm px-3 sm:px-6 py-2 sm:py-3 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
         <div className="flex items-center space-x-2 sm:space-x-3">
           <div className="text-center sm:text-left">
             <img src="/logo-png-sm.png" alt="CMS LOGO" className="h-8 sm:h-12 lg:h-16" />
