@@ -173,9 +173,9 @@ const TvDisplayV2 = ({setLoadingState}) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
+    <div className="min-h-screen bg-gray-100 flex flex-col relative overflow-hidden">
       {/* Logo and Header */}
-      <header className="bg-white shadow-sm px-3 sm:px-6 py-2 sm:py-3 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
+      <header className="absolute w-full bg-white shadow-sm px-3 sm:px-6 py-2 sm:py-3 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
         <div className="flex items-center space-x-2 sm:space-x-3">
           <div className="text-center sm:text-left">
             <img src="/logo-png-sm.png" alt="CMS LOGO" className="h-8 sm:h-12 lg:h-16" />
@@ -206,62 +206,54 @@ const TvDisplayV2 = ({setLoadingState}) => {
       </header>
 
       {/* Main Content Grid */}
-      <div className="flex flex-col lg:flex-row gap-2 sm:gap-4 p-2 sm:p-4">
-        {/* Ads Video */}
-        <div className="w-full lg:w-1/2 flex-1 overflow-hidden ">
-          <div className="flex flex-col gap-2 max-h-[calc(100%_-_88px)]">
-            <div className="flex-1 flex items-center justify-center rounded-xl overflow-hidden">
-              { videoUrl && (
-                <ReactPlayer
-                  playing={true}
-                  width="100%"
-                  height="100%"
-                  loop={true}
-                  controls={true}
-                  style={{ aspectRatio: "16/9" }}
-                  url={videoUrl}
-                />
-                ) 
-              }
-              { !videoUrl && (
-                <div className="text-gray-500 text-center min-h-[380px] flex flex-col items-center justify-center bg-gray-100 w-full rounded-lg border">
-                  <FaVideoSlash className="text-6xl mb-2" />
-                  <strong className="text-sm">No Video Available</strong>
-                </div>
-              )}
-              
-            </div>
-
-            <div className="flex-1 flex items-center justify-center rounded-xl overflow-hidden">
-              { fileVideoUrl && (
-                <ReactPlayer
-                  playing={true}
-                  width="100%"
-                  height="100%"
-                  loop={true}
-                  controls={true}
-                  style={{ aspectRatio: "16/9" }}
-                  url={`${process.env.REACT_APP_API + fileVideoUrl}`}
-                  muted={true}
-                />
-                ) 
-              }
-              { !fileVideoUrl && (
-                <div className="text-gray-500 text-center min-h-[380px] flex flex-col items-center justify-center bg-gray-100 w-full rounded-lg border">
-                  <FaVideoSlash className="text-6xl mb-2" />
-                  <strong className="text-sm">No Video Available</strong>
-                </div>
-              )}
-            </div>
+      <div className="flex flex-col lg:flex-row gap-2 sm:gap-4 h-screen pt-[6.5rem] px-4 pb-4 overflow-auto">
+        <div className="w-full lg:w-2/5 space-y-2">
+          <div className="w-full h-1/2 rounded-lg overflow-hidden">
+            { videoUrl && (
+              <ReactPlayer
+                playing={true}
+                width="100%"
+                height="100%"
+                loop={true}
+                controls={true}
+                style={{ aspectRatio: "16/9" }}
+                url={videoUrl}
+              />
+              ) 
+            }
+            { !videoUrl && (
+              <div className="text-gray-500 text-center min-h-[380px] flex flex-col items-center justify-center bg-gray-100 w-full rounded-lg border">
+                <FaVideoSlash className="text-6xl mb-2" />
+                <strong className="text-sm">No Video Available</strong>
+              </div>
+            )}
+          </div>
+          <div className="w-full h-1/2 rounded-lg overflow-hidden">
+            { fileVideoUrl && (
+              <ReactPlayer
+                playing={true}
+                width="100%"
+                height="100%"
+                loop={true}
+                controls={true}
+                style={{ aspectRatio: "16/9" }}
+                url={`${process.env.REACT_APP_API + fileVideoUrl}`}
+                muted={true}
+              />
+              ) 
+            }
+            { !fileVideoUrl && (
+              <div className="text-gray-500 text-center min-h-[380px] flex flex-col items-center justify-center bg-gray-100 w-full rounded-lg border">
+                <FaVideoSlash className="text-6xl mb-2" />
+                <strong className="text-sm">No Video Available</strong>
+              </div>
+            )}
           </div>
         </div>
-        
-        
-        <div className="w-full lg:w-1/2">
+        <div className="w-full lg:w-3/5 ">
           <div className="
             grid xl:grid-cols-3 lg:grid-cols-2 md:grid-cols-3 gap-3
           ">
-            {/* Departments */}
             {departments?.map((station, index) => (
               <ServicePoint
                 key={index}
