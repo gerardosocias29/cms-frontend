@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import ReactPlayer from "react-player";
 import { useAxios } from "../../contexts/AxiosContext";
 import leadingZero from "../../utils/leadingZero";
@@ -74,7 +74,11 @@ const TvDisplayV2 = ({setLoadingState}) => {
 
   const [activeClick, setActiveClick] = useState(false);
   const voices = speechSynthesis.getVoices();
-  const bell = new Audio('/assets/mp3/bell.mp3');
+  const bellRef = useRef(null);
+
+  useEffect(() => {
+    bellRef.current = new Audio('/assets/mp3/bell.mp3');
+  }, []);
 
   const callOutInQueue = (e) => {
     if(!e.department_name || !e.number || !e.priority){
@@ -86,7 +90,7 @@ const TvDisplayV2 = ({setLoadingState}) => {
 
     if(activeClick) return;
     // Play the bell sound
-    bell.play();
+    if (bellRef.current) bellRef.current.play();
     setTimeout(() => {
       const utterance = new SpeechSynthesisUtterance(`${e.priority}${leadingZero(e.number)}, on ${e.department_name}`);
       utterance.volume = 1; // 🔊 Volume: 0.0 (mute) to 1.0 (max)
@@ -99,8 +103,10 @@ const TvDisplayV2 = ({setLoadingState}) => {
       // on done speaking
       utterance.onend = () => {
         setActiveClick(false);
-        bell.pause();
-        bell.currentTime = 0;
+        if (bellRef.current) {
+          bellRef.current.pause();
+          bellRef.current.currentTime = 0;
+        }
         speechSynthesis.cancel();
       };
     }, 1000);
