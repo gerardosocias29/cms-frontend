@@ -257,9 +257,8 @@ const Settings = () => {
       const printText = encoder.encode("Settings Test Print\nSuccessful!\n\n\n");
       const cutPaper = new Uint8Array([0x1D, 0x56, 0x42, 0x00]);
 
-      const dataToSend = new Uint8Array([...initPrinter, ...printText, ...cutPaper]);
-
-      await device.transferOut(endpointNumber, dataToSend);
+      await device.transferOut(endpointNumber, new Uint8Array([...initPrinter, ...printText]));
+      await device.transferOut(endpointNumber, cutPaper);
       toast.current?.show({ severity: 'success', summary: 'Test Print Sent', detail: `Test sent to ${device.productName}.`, life: 3000 });
 
       await device.releaseInterface(interfaceNumber);

@@ -170,7 +170,8 @@ export default function PatientTriage() {
       await deviceToPrint.transferOut(endpointNumber, middleSpacing);
       await deviceToPrint.transferOut(endpointNumber, new Uint8Array([...setNormalFont, ...printTimestamp]));
       const bottomSpacing = encoder.encode("\n\n");
-      await deviceToPrint.transferOut(endpointNumber, bottomSpacing, ...cutPaper);
+      await deviceToPrint.transferOut(endpointNumber, bottomSpacing);
+      await deviceToPrint.transferOut(endpointNumber, cutPaper);
 
       toast.current?.show({ severity: 'success', summary: 'Printed', detail: `${queueNum} sent successfully.`, life: 3000 });
 
