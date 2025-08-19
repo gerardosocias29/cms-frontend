@@ -7,6 +7,77 @@ import { Dropdown } from "primereact/dropdown";
 import convertUTCToTimeZone from "../../utils/convertUTCToTimeZone";
 import { CalendarIcon, HistoryIcon } from "lucide-react";
 
+// Utility to export CSV
+function exportQueueHistoryCSV(queueData, userDepartments, selectedDepartment, selectedDate) {
+  if (!queueData?.patients?.length) return;
+
+  // Helper to get department name by id
+  const getDeptName = (id) => {
+    const dept = userDepartments.find((d) => d.id === id);
+    return dept ? dept.name : `Dept #${id}`;
+  };
+
+  // CSV header: Queue #, Name, Priority, Timestamp, Department
+  const header = [
+    'Queue #',
+    'Name',
+    'Priority',
+    'Timestamp',
+    'Department'
+  ];
+
+  // Format each patient row: one row per department history entry, columns: Queue #, Name, Priority, Timestamp, Department
+  const rows = [];
+  queueData.patients.forEach((patient) => {
+    const queueNum = `${patient.priority}${leadingZero(patient.priority_number)}`;
+    const name = patient.name || '';
+    const priority = patient.priority === 'P' ? 'Urgent' : patient.priority === 'SC' ? 'Senior/PWD' : 'Regular';
+    if (patient.prev_department_ids && patient.prev_department_ids.length > 0) {
+      patient.prev_department_ids.forEach((entry) => {
+        const ts = convertUTCToTimeZone(entry.timestamp, "YYYY-MM-DD HH:mm");
+        const deptName = getDeptName(entry.department_id);
+        rows.push([
+          queueNum,
+          name,
+          priority,
+          ts,
+          deptName
+        ]);
+      });
+    } else {
+      // If no department history, still output a row with empty timestamp/department
+      rows.push([
+        queueNum,
+        name,
+        priority,
+        '',
+        ''
+      ]);
+    }
+  });
+
+  // Convert to CSV string
+  const csvContent = [
+    header.join(','),
+    ...rows.map(row => row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(','))
+  ].join('\n');
+
+  // Download
+  const blob = new Blob([csvContent], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const deptName = userDepartments.find(d => d.id === selectedDepartment)?.name?.replace(/\s+/g, '_') || 'department';
+  const dateStr = selectedDate.toISOString().split('T')[0];
+  a.download = `Queue_History_${deptName}_${dateStr}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 100);
+}
+
 const QueueHistory = ({ profile }) => {
   const showToast = useToast();
   const axiosInstance = useAxios();
@@ -167,7 +238,6 @@ const QueueHistory = ({ profile }) => {
                   dateFormat="mm/dd/yy"
                 />
               </div>
-              
               {/* Department Dropdown */}
               <Dropdown 
                 className="w-64"
@@ -184,7 +254,7 @@ const QueueHistory = ({ profile }) => {
       </div>
 
       {/* Body */}
-      <div className="bg-white shadow-lg rounded-b-2xl p-6">
+      <div className="bg-white shadow-lg rounded-b-2xl p-4">
         {/* Loading State */}
         {isLoading && (
           <div className="text-center py-8">
@@ -203,6 +273,17 @@ const QueueHistory = ({ profile }) => {
         {/* Content Area */}
         {!isLoading && (
           <>
+            <div className="flex justify-end mb-2">
+              {/* Export CSV Button */}
+              <button
+                className={`ml-2 px-4 py-2 ${!queueData.patients.length ? 'bg-gray-600 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'} text-white rounded-lg text-sm font-semibold shadow`}
+                onClick={() => exportQueueHistoryCSV(queueData, userDepartments, selectedDepartment, selectedDate)}
+                disabled={!queueData.patients.length}
+                title="Export current queue history as CSV"
+              >
+                Export CSV
+              </button>
+            </div>
             {/* Date and Summary Info */}
             <div className="mb-6 p-4 bg-gray-50 rounded-lg">
               <div className="flex justify-between items-center">
