@@ -3,8 +3,8 @@
 # Script to run the application with environment switching
 
 # Define environment options
-LOCAL_API="http://localhost:9876"
-LOCAL_API_URL="http://localhost:9876/api"
+LOCAL_API="http://cms-backend.local"
+LOCAL_API_URL="http://cms-backend.local/api"
 PROD_API="https://api.dumy.one"
 PROD_API_URL="https://api.dumy.one/api"
 

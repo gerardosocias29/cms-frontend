@@ -23,7 +23,8 @@ function exportQueueHistoryCSV(queueData, userDepartments, selectedDepartment, s
     'Name',
     'Priority',
     'Timestamp',
-    'Department'
+    'Department',
+    'Status',
   ];
 
   // Format each patient row: one row per department history entry, columns: Queue #, Name, Priority, Timestamp, Department
@@ -32,7 +33,7 @@ function exportQueueHistoryCSV(queueData, userDepartments, selectedDepartment, s
     const queueNum = `${patient.priority}${leadingZero(patient.priority_number)}`;
     const name = patient.name || '';
     const priority = patient.priority === 'P' ? 'Urgent' : patient.priority === 'SC' ? 'Senior/PWD' : 'Regular';
-    if (patient.prev_department_ids && patient.prev_department_ids.length > 0) {
+    if (patient.status != "waiting" && patient.prev_department_ids && patient.prev_department_ids.length > 0) {
       patient.prev_department_ids.forEach((entry) => {
         const ts = convertUTCToTimeZone(entry.timestamp, "YYYY-MM-DD HH:mm");
         const deptName = getDeptName(entry.department_id);
@@ -41,7 +42,8 @@ function exportQueueHistoryCSV(queueData, userDepartments, selectedDepartment, s
           name,
           priority,
           ts,
-          deptName
+          deptName,
+          patient.status || '',
         ]);
       });
     } else {
@@ -50,8 +52,9 @@ function exportQueueHistoryCSV(queueData, userDepartments, selectedDepartment, s
         queueNum,
         name,
         priority,
-        '',
-        ''
+        convertUTCToTimeZone(patient.created_at, "YYYY-MM-DD HH:mm"),
+        patient.starting_department.name || '',
+        patient.status || '',
       ]);
     }
   });
@@ -68,7 +71,12 @@ function exportQueueHistoryCSV(queueData, userDepartments, selectedDepartment, s
   const a = document.createElement('a');
   a.href = url;
   const deptName = userDepartments.find(d => d.id === selectedDepartment)?.name?.replace(/\s+/g, '_') || 'department';
-  const dateStr = selectedDate.toISOString().split('T')[0];
+  
+  // get selected date[0] and date[1] in MM_DD_YYYY format
+  const dateStr = selectedDate && selectedDate[0] && selectedDate[1]
+    ? `${convertUTCToTimeZone(selectedDate[0].toISOString(), "MM_DD_YYYY")}_to_${convertUTCToTimeZone(selectedDate[1].toISOString(), "MM_DD_YYYY")}`
+    : 'date';
+  
   a.download = `Queue_History_${deptName}_${dateStr}.csv`;
   document.body.appendChild(a);
   a.click();
@@ -81,7 +89,7 @@ function exportQueueHistoryCSV(queueData, userDepartments, selectedDepartment, s
 const QueueHistory = ({ profile }) => {
   const showToast = useToast();
   const axiosInstance = useAxios();
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState([new Date(), new Date()]);
   const [queueData, setQueueData] = useState({
     department: profile?.department,
     patients: [],
@@ -100,7 +108,7 @@ const QueueHistory = ({ profile }) => {
     } catch (error) {
       console.error('Error fetching departments:', error);
     }
-  }, [axiosInstance]);
+  }, []);
 
   const fetchHistoricalPatients = useCallback(async (department_id = null, date = null) => {
     setIsLoading(true);
@@ -111,21 +119,26 @@ const QueueHistory = ({ profile }) => {
       if (department_id) {
         params.append('department_id', department_id);
       }
-      
-      if (date) {
-        // Format date as YYYY-MM-DD for the API
-        const formattedDate = date.toISOString().split('T')[0];
-        params.append('date', formattedDate);
-      }
 
-      const queryString = params.toString();
-      const url = `/patients/queue/history${queryString ? `?${queryString}` : ''}`;
+      if(date[0] != null && date[1] != null){
+        const formattedDate = date[0].toISOString().split('T')[0];
+        params.append('date', formattedDate+" 00:00:00");
+        
+        const formattedDateEnd = date[1].toISOString().split('T')[0];
+        params.append('date_end', formattedDateEnd+" 23:59:59");
+
+        const queryString = params.toString();
+        const url = `/patients/queue/history${queryString ? `?${queryString}` : ''}`;
+        
+        const response = await axiosInstance.get(url);
+        setQueueData((prev) => ({
+          ...prev,
+          patients: response.data,
+        }));
+      } else {
+        return;
+      }
       
-      const response = await axiosInstance.get(url);
-      setQueueData((prev) => ({
-        ...prev,
-        patients: response.data,
-      }));
     } catch (err) {
       console.error("Error fetching historical patients:", err);
       setError("Failed to load historical queue data. Please try again later.");
@@ -137,12 +150,15 @@ const QueueHistory = ({ profile }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [axiosInstance, showToast]);
+  }, []);
 
   // Initialize component
   useEffect(() => {
+    fetchDepartments();
+  }, []);
+
+  useEffect(() => {
     if (profile) {
-      fetchDepartments();
       setUserDepartments(profile?.all_departments);
       setSelectedDepartment(profile?.all_departments[0]?.id);
 
@@ -152,15 +168,16 @@ const QueueHistory = ({ profile }) => {
         selectedDate
       );
     }
-  }, [profile, fetchDepartments, fetchHistoricalPatients, selectedDate]);
+  }, [profile, selectedDate]);
 
   // Handle date change
   const handleDateChange = (e) => {
+    console.log(e);
     const newDate = e.value;
     setSelectedDate(newDate);
-    if (newDate && selectedDepartment) {
-      fetchHistoricalPatients(selectedDepartment, newDate);
-    }
+    // if (newDate && selectedDepartment) {
+    //   fetchHistoricalPatients(selectedDepartment, newDate);
+    // }
   };
 
   // Handle department change
@@ -232,10 +249,13 @@ const QueueHistory = ({ profile }) => {
                   onChange={handleDateChange}
                   maxDate={new Date()}
                   placeholder="Select Date"
-                  className="bg-transparent border-0 text-white"
-                  inputClassName="bg-transparent border-0 text-white placeholder-white/70 text-sm"
+                  className="bg-transparent border-0 text-white ring-0"
+                  inputClassName="bg-transparent border-0 text-white placeholder-white/70 text-sm ring-0"
                   showIcon={false}
                   dateFormat="mm/dd/yy"
+                  selectionMode="range" 
+                  readOnlyInput hideOnRangeSelection
+                  
                 />
               </div>
               {/* Department Dropdown */}
@@ -289,7 +309,7 @@ const QueueHistory = ({ profile }) => {
               <div className="flex justify-between items-center">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800">
-                    Queue Data for {convertUTCToTimeZone(selectedDate.toISOString(), "MMM DD, YYYY")}
+                    Queue Data for {convertUTCToTimeZone(selectedDate[0].toISOString(), "MMM DD, YYYY")} {selectedDate[1] && "to " + convertUTCToTimeZone(selectedDate[1].toISOString(), "MMM DD, YYYY")} 
                   </h3>
                   <p className="text-gray-600">
                     Department: {userDepartments.find(d => d.id === selectedDepartment)?.name || 'All Departments'}
