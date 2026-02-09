@@ -144,7 +144,7 @@ const Queue = ({ profile }) => {
         showToast({
           severity: "success",
           summary: "Session Started",
-          detail: `Successfully started session for ${patient.priority}${patient.priority_number}.`,
+          detail: `Successfully started session for ${patient.display_number || patient.priority + String(patient.priority_number).padStart(2, '0')}.`,
         });
 
         setCurrentPatient(response.data.patient); // Use updated patient data from response
@@ -162,7 +162,7 @@ const Queue = ({ profile }) => {
         // showToast("Session started successfully!", "success"); // Example toast
       } catch (err) {
          console.error("Failed to start session:", err);
-         setError(`Failed to start session for ${patient.priority}${patient.priority_number}. ${err.response?.data?.message || ''}`);
+         setError(`Failed to start session for ${patient.display_number || patient.priority + String(patient.priority_number).padStart(2, '0')}. ${err.response?.data?.message || ''}`);
          // showToast(`Error starting session: ${err.response?.data?.message || 'Server error'}`, "error");
       } finally {
         setIsActionLoading(false);
@@ -172,7 +172,7 @@ const Queue = ({ profile }) => {
 
   const endSession = async () => {
     if (!currentPatient || isActionLoading) return;
-    if (window.confirm(`End session for ${currentPatient.priority}${currentPatient.priority_number}?`)) {
+    if (window.confirm(`End session for ${currentPatient.display_number || currentPatient.priority + String(currentPatient.priority_number).padStart(2, '0')}?`)) {
       setIsActionLoading(true);
       console.log(`Attempting to end session for patient: ${currentPatient.id}`);
       try {
@@ -192,7 +192,7 @@ const Queue = ({ profile }) => {
         showToast({
           severity: "success",
           summary: "Session Ended",
-          detail: `Successfully ended session for ${currentPatient.priority}${currentPatient.priority_number}.`,
+          detail: `Successfully ended session for ${currentPatient.display_number || currentPatient.priority + String(currentPatient.priority_number).padStart(2, '0')}.`,
         });
         // showToast("Session ended successfully!", "success");
       } catch (err) {
@@ -331,7 +331,7 @@ const Queue = ({ profile }) => {
                 <div className="text-center w-full lg:w-2/5">
                   <h2 className="text-xl text-gray-600 mb-2">Now Serving</h2>
                   <div className="bg-green-500 text-white text-5xl font-bold py-6 px-12 rounded-xl inline-block min-h-[100px] flex items-center justify-center">
-                    {currentPatient ? `${currentPatient.priority}${leadingZero(currentPatient.priority_number)}` : "---"}
+                    {currentPatient ? (currentPatient.display_number || `${currentPatient.priority}${leadingZero(currentPatient.priority_number)}`) : "---"}
                   </div>
                 </div>
 
@@ -349,7 +349,7 @@ const Queue = ({ profile }) => {
                           className={getPatientButtonClass(patient)}
                           disabled={isActionLoading}
                         >
-                          {patient.priority}{leadingZero(patient.priority_number)}
+                          {patient.display_number || (patient.priority + leadingZero(patient.priority_number))}
                         </button>
                       ))}
                     </div>

@@ -64,7 +64,7 @@ export default function PatientTriage() {
         tooltip='Print Priority Number'
         data-pr-position='top'
         // Now rowData is correctly defined in this scope
-        onClick={() => handlePrint(rowData.priority + rowData.priority_number.toString().padStart(2, '0'))}
+        onClick={() => handlePrint(rowData.display_number || rowData.priority + rowData.priority_number.toString().padStart(2, '0'))}
       />
       <Button
         rounded
@@ -343,7 +343,7 @@ export default function PatientTriage() {
           columns={[
             {field: 'priority_number', header: 'ID', hasTemplate: true, template: (_, rowData) => {
               return <div className="flex flex-col items-start">
-                <div>{rowData.priority}{leadingZero(rowData.priority_number || 0)}</div>
+                <div>{rowData.display_number || `${rowData.priority}${leadingZero(rowData.priority_number || 0)}`}</div>
               </div>
             }},
             {field: 'created_at', header: 'Date Created', headerClassname: "text-xs", hasTemplate: true, template: (data) => { return convertUTCToTimeZone(data, "MMM DD, YYYY hh:mm A") }},
@@ -371,7 +371,9 @@ export default function PatientTriage() {
           onSuccess={(data) => {
             setRefreshTable(true);
             // Print after successful save
-            if(data.status && data.priority != null && data.priority_number != null){
+            if(data.status && data.display_number){
+              handlePrint(data.display_number);
+            } else if(data.status && data.priority != null && data.priority_number != null){
               handlePrint(data.priority + data.priority_number.toString().padStart(2, '0'));
             }
           }}

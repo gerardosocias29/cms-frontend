@@ -81,7 +81,7 @@ const TvDisplayV2 = ({setLoadingState}) => {
   }, []);
 
   const callOutInQueue = (e) => {
-    if(!e.department_name || !e.number || !e.priority){
+    if(!e.department_name || !(e.number || e.display_number) || !e.priority){
       return;
     }
 
@@ -92,7 +92,8 @@ const TvDisplayV2 = ({setLoadingState}) => {
     // Play the bell sound
     if (bellRef.current) bellRef.current.play();
     setTimeout(() => {
-      const utterance = new SpeechSynthesisUtterance(`${e.priority}${leadingZero(e.number)}, on ${e.department_name}`);
+      const spokenNumber = e.display_number || (e.priority + '-' + String(e.number || 0).padStart(2, '0'));
+      const utterance = new SpeechSynthesisUtterance(`${spokenNumber}, on ${e.department_name}`);
       utterance.volume = 1; // 🔊 Volume: 0.0 (mute) to 1.0 (max)
       utterance.rate = 1;   // 🚀 Speed: 0.1 (slow) to 10 (fast), default is 1
       utterance.pitch = 1;  // 🎼 Pitch: 0 (low) to 2 (high)
@@ -269,14 +270,36 @@ const TvDisplayV2 = ({setLoadingState}) => {
           <div className="
             grid xl:grid-cols-3 lg:grid-cols-2 md:grid-cols-3 gap-3
           ">
-            {departments?.map((station, index) => (
-              <ServicePoint
-                key={index}
-                department={station.name}
-                number={(station?.patient?.priority || "") + leadingZero(station?.patient?.priority_number || 0)}
-                type={station?.patient?.priority}
-              />
-            ))}
+            {departments?.map((station, index) => {
+              const patient = station?.patient || {};
+              const deptName = station?.name || '';
+              
+              const computeInitials = (name, max = 3) => {
+                if (!name) return '';
+                const clean = name.replace(/[^A-Za-z]/g,'').toUpperCase();
+                return clean.slice(0, max);
+              };
+
+              const formatDisplayNumber = (initials, priority, priorityNum) => {
+                const first3 = computeInitials(initials, 3);
+                const padded = String(priorityNum || 0).padStart(2, '0');
+                return `${first3}-${priority || 'R'}${padded}`;
+              };
+
+              const hasPatient = patient.id;
+              const displayNumber = hasPatient
+                ? (patient.display_number || formatDisplayNumber(deptName, patient.priority, patient.priority_number))
+                : '---';
+
+              return (
+                <ServicePoint
+                  key={index}
+                  department={station.name}
+                  number={displayNumber}
+                  type={patient.priority}
+                />
+              );
+            })}
           </div>
         </div>
       </div>

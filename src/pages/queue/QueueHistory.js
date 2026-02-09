@@ -30,7 +30,7 @@ function exportQueueHistoryCSV(queueData, userDepartments, selectedDepartment, s
   // Format each patient row: one row per department history entry, columns: Queue #, Name, Priority, Timestamp, Department
   const rows = [];
   queueData.patients.forEach((patient) => {
-    const queueNum = `${patient.priority}${leadingZero(patient.priority_number)}`;
+    const queueNum = patient.display_number || `${patient.priority}${leadingZero(patient.priority_number)}`;
     const name = patient.name || '';
     const priority = patient.priority === 'P' ? 'Urgent' : patient.priority === 'SC' ? 'Senior/PWD' : 'Regular';
     if (patient.status != "waiting" && patient.prev_department_ids && patient.prev_department_ids.length > 0) {
@@ -335,7 +335,7 @@ const QueueHistory = ({ profile }) => {
                         className={getPatientButtonClass(patient)}
                       >
                         <div className="text-lg font-bold">
-                          {patient.priority}{leadingZero(patient.priority_number)}
+                          {patient.display_number || `${patient.priority}${leadingZero(patient.priority_number)}`}
                         </div>
                         <div className="mt-1">
                           {getStatusBadge(patient.status)}
@@ -369,7 +369,7 @@ const QueueHistory = ({ profile }) => {
                         {queueData.patients.map((patient) => (
                           <tr key={patient.id} className="hover:bg-gray-50">
                             <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                              {patient.priority}{leadingZero(patient.priority_number)}
+                              {patient.display_number || `${patient.priority}${leadingZero(patient.priority_number)}`}
                             </td>
                             <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                               {patient.name || 'N/A'}

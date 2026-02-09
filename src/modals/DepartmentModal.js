@@ -28,6 +28,7 @@ export default function DepartmentModal({
 
   const newData = {
     'name': '',
+    'initials': '',
     'staffCount': 0,
     'totalBeds': 0,
     'status': 'available'
@@ -108,6 +109,19 @@ export default function DepartmentModal({
                 }}
               />
               <p className="text-xs w-full text-red-500">{!touched?.name && errors?.name ? "This field is required." : ""}</p>
+            </div>
+            
+            <div className="flex flex-col">
+              <label className="text-xs text-gray-500 uppercase font-medium tracking-wide">Initials (optional)</label>
+              <InputText 
+                type="text"
+                name="initials"
+                className={`w-full rounded-lg ring-0 px-3 py-2 border`}
+                placeholder="e.g. XR, RM"
+                value={formData.initials}
+                onChange={handleOnChange}
+              />
+              <p className="text-xs w-full text-gray-500">Optional: override auto-generated initials</p>
             </div>
             
             <div className="flex flex-col">
